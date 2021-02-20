@@ -14,7 +14,7 @@ A web application that allows you to collaborte live with others on editing docu
 - Realtime interaction with multiple users
 
 ## Technology Stack
-- real time synchronization (webSockets)
+- Real time synchronization (webSockets)
 - React.js Frontend
 - Node.js Backend
 - MongoDB Databse
