@@ -1,5 +1,5 @@
 # Project Saturn
-A web application that allows you to collaborte live with others on editing documents that contain code. Users may use the online virtual environment to compile and run code in different languages all inside of their browser.   
+A web application that allows you to collaborate live with others on editing documents that contain code. Users may use the online virtual environment to compile and run code in different languages all inside of their browser.   
 
 ## Team Members
 - David Yue
@@ -17,7 +17,7 @@ A web application that allows you to collaborte live with others on editing docu
 - Real time synchronization (webSockets)
 - React.js Frontend
 - Node.js Backend
-- MongoDB Databse
+- MongoDB Database
 
 ## Challenges
-- Impelmenting realtime interaction with multiple users
+- Implementing real time interaction with multiple users
