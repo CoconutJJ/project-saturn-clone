@@ -8,7 +8,8 @@ A web application that allows you to collaborate live with others on editing doc
 
 ## Beta Features
 - User authentication
-- Create, edit, compile and run code 
+- Create, edit, compile and run code
+- Read, write, and execute permissions on collaborators 
 
 ## Additional features in full version
 - Realtime interaction with multiple users
@@ -21,3 +22,4 @@ A web application that allows you to collaborate live with others on editing doc
 
 ## Challenges
 - Implementing real time interaction with multiple users
+- Ensuring application security when users are can virtually run any code they wish
