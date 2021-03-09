@@ -13,13 +13,15 @@ function LogIn() {
             <div>
                 <Grid container style={{ minHeight: '100vh' }}>
                     <Grid item sm={6}>
-                        <img src={brandBackground} style={{ height: '100%', width: '100%', objectFit: 'cover' }} alt="brand picture" />
+                        <img src={brandLogo} style={{ height: '100%', width: '100%', objectFit: 'cover' }} alt="brand picture" />
                     </Grid>
                     <Grid container item sm={6} style={{ padding: 10 }} alignItems="center" direction="column" justify="space-between">
                         <div />
                         <div style={{ display: "flex", flexDirection: "column" }}>
                             <Grid container justify="center">
-                                <img src={brandLogo} width={200} alt="brand logo" />
+                                {/* <img src={brandLogo} width={200} alt="brand logo" /> */}
+
+                                <h1>SATURN</h1>
                             </Grid>
                             {/* <TextField label="Username" margin="normal" id="standard-basic"
                             InputProps={{
@@ -53,7 +55,7 @@ function LogIn() {
                                     <LockRounded />
                                 </Grid>
                                 <Grid item>
-                                    <TextField id="input-with-icon-grid" label="Password" />
+                                    <TextField id="input-with-icon-grid" label="Password" type="Password"/>
                                 </Grid>
                             </Grid>
                             <div style={{ height: 20 }} />
