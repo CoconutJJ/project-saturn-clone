@@ -10,17 +10,17 @@ const {buildSchema} = require("graphql");
 const bodyParser = require("body-parser");
 const qlSchema = buildSchema(fs.readFileSync("api.gql").toString());
 
-
-
 const root = {
-    
+
 }
 
 app.use(morgan("dev"));
 
 app.use(bodyParser.json());
 
-app.use("/", express.static(path.join(__dirname, "../Frontend/dist")))
+app.use("/static", express.static(path.join(__dirname, "../Frontend/dist")))
+
+
 
 app.use("/ql", (req, res) =>
     graphqlHTTP({
@@ -30,6 +30,11 @@ app.use("/ql", (req, res) =>
         context: { req, res },
     })(req, res)
 );
+
+
+app.get("/:path?", (req, res, next) => {
+    res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"))
+})
 
 app.listen(8080, () => {
     console.log("Server Running!")
