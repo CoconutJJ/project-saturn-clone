@@ -8,13 +8,12 @@ const app = express();
 const { graphqlHTTP } = require("express-graphql");
 const {buildSchema} = require("graphql");
 const bodyParser = require("body-parser");
-
-
 const qlSchema = buildSchema(fs.readFileSync("api.gql").toString());
 
 
 
 const root = {
+    
 }
 
 app.use(morgan("dev"));
