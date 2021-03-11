@@ -1,0 +1,5 @@
+type Query {
+
+    loginUser(username: String, password: String): Boolean
+
+}
