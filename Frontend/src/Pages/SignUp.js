@@ -2,21 +2,15 @@ import { Button, CssBaseline, Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
 import React, { Fragment, useState } from "react";
-import { hot } from "react-hot-loader/root";
-import { useHistory } from "react-router-dom";
-import brandBackground from "../Media/milkyway.png";
 import brandLogo from "../Media/saturn.png";
-function LogIn() {
+function SignUp() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
 
-    const history = useHistory();
 
     let validEntries = () => {
-
-        return username.length > 0 && password.length > 0
-
-    }
+        return username.length > 0 && password.length > 0;
+    };
 
 
     return (
@@ -42,35 +36,45 @@ function LogIn() {
                         style={{ padding: 10 }}
                         alignItems="center"
                         direction="column"
-                        justify="space-between"
+                        justify="center"
                     >
-                        <div />
                         <div
                             style={{ display: "flex", flexDirection: "column" }}
                         >
+                            <div style={{height: 30}}/>
                             <Grid container justify="center">
-                                {/* <img src={brandLogo} width={200} alt="brand logo" /> */}
-
-                                <h1>Log In</h1>
+                                <h1>Sign Up</h1>
                             </Grid>
-                            {/* <TextField label="Username" margin="normal" id="standard-basic"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <AccountCircle />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                        <TextField label="Password" margin="normal" id="standard-basic"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LockRounded />
-                                    </InputAdornment>
-                                ),
-                            }} /> */}
+
+                            <Grid container spacing={1} alignItems="flex-end">
+                                <Grid item>
+                                    <AccountCircle />
+                                </Grid>
+                                <Grid item>
+                                    <TextField
+                                        id="input-with-icon-grid"
+                                        label="First Name"
+                                    />
+                                </Grid>
+                                <Grid item>
+                                    <AccountCircle />
+                                </Grid>
+                                <Grid item>
+                                    <TextField
+                                        id="input-with-icon-grid"
+                                        label="Last Name"
+                                    />
+                                </Grid>
+                            </Grid>
                             <div style={{ height: 20 }} />
+
+                            <Grid
+                                container
+                                spacing={1}
+                                alignItems="flex-end"
+                            ></Grid>
+                            <div style={{ height: 20 }} />
+
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
                                     <AccountCircle />
@@ -85,9 +89,6 @@ function LogIn() {
                                         }
                                     />
                                 </Grid>
-                            </Grid>
-                            <div style={{ height: 20 }} />
-                            <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
                                     <LockRounded />
                                 </Grid>
@@ -104,15 +105,21 @@ function LogIn() {
                                 </Grid>
                             </Grid>
                             <div style={{ height: 20 }} />
-                            <Button color="primary" variant="contained" disabled={!validEntries()}>
-                                Log in
-                            </Button>
+                            <Grid container spacing={1} alignItems="flex-end">
+                                <Grid item>
+                                    <AccountCircle />
+                                </Grid>
+                                <Grid item>
+                                    <TextField
+                                        id="input-with-icon-grid"
+                                        label="Email"
+                                    />
+                                </Grid>
+                            </Grid>
 
+                            <div style={{ height: 20 }} />
+                            <Button variant="contained" color="primary">Sign up</Button>
                         </div>
-                        <div />
-                        {/* <Grid container justify="center">
-                        <Button>Credits</Button>
-                    </Grid> */}
                     </Grid>
                 </Grid>
             </div>
@@ -120,4 +127,4 @@ function LogIn() {
     );
 }
 
-export default hot(LogIn);
+export default SignUp;

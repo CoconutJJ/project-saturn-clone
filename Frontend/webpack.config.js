@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const config = {
   entry: [
     'react-hot-loader/patch',
@@ -8,7 +8,8 @@ const config = {
   ],
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: '[name].bundle.js',
+    publicPath: "/static"
   },
   module: {
     rules: [
@@ -60,7 +61,26 @@ const config = {
   },
   devServer: {
     contentBase: './dist'
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      appMountId: 'app',
+      filename: 'index.html',
+      template: "./src/Templates/index.html"
+    })
+  ],
+  optimization: {
+    runtimeChunk: 'single',
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all'
+        }
+      }
+    }
+  },
 };
 
 module.exports = config;
