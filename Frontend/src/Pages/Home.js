@@ -8,6 +8,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import brandLogo from "../Media/saturn.png";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
+import TypeIt from "typeit-react";
 
 const useStyles = makeStyles((theme) => ({
     menuButton: {
@@ -16,6 +17,12 @@ const useStyles = makeStyles((theme) => ({
     title: {
         flexGrow: 1,
     },
+
+    actionButton: {
+        borderColor: "white",
+        color: "white"
+    }
+
 }));
 
 function Home() {
@@ -25,7 +32,7 @@ function Home() {
 
     let toLoginPage = () => {
         history.push("/login");
-    }
+    };
 
     return (
         <>
@@ -36,6 +43,7 @@ function Home() {
                     backgroundRepeat: "no-repeat",
                     backgroundSize: "cover",
                     height: "100vh",
+                    color: "white",
                 }}
             >
                 <AppBar position="static" style={{ backgroundColor: "black" }}>
@@ -48,12 +56,29 @@ function Home() {
                         >
                             <MenuIcon />
                         </IconButton> */}
-                        <Typography variant="h6" className={classes.title}>SATURN</Typography>
-                        <Button color="inherit" onClick={toLoginPage}>Login</Button>
+                        <Typography variant="h6" className={classes.title}>
+                            SATURN
+                        </Typography>
+                        <Button color="inherit" onClick={toLoginPage}>
+                            Login
+                        </Button>
                         <Button color="inherit">Sign Up</Button>
-
                     </Toolbar>
                 </AppBar>
+                <div style={{padding:"5%"}}>
+                    <Typography variant="h3">Saturn is <TypeIt
+                        options={{
+                            strings: ["Jupyter with Rings", "A Code Editor", "Collaboration Software", "The 6th planet in our Solar System"],
+                            speed: 80,
+                            waitUntilVisible: true,
+                            breakLines: false,
+                            loop: true
+                        }}
+                    />
+                    </Typography>
+                    <br/>
+                    <Button color="primary" variant="outlined" size="large" className={classes.actionButton}>Get Started</Button>
+                </div>
             </div>
         </>
     );
