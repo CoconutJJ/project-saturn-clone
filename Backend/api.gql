@@ -1,5 +1,7 @@
 type Query {
-
     loginUser(username: String, password: String): Boolean
+}
 
+type Mutation {
+    signUpUser(firstname: String, lastname: String, username: String, password: String, email: String): Boolean
 }

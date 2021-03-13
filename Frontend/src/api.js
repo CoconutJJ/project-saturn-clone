@@ -29,7 +29,7 @@ class API {
         });
     }
 
-    async static _r(type, query, variables = {}) {
+    static async _r(type, query, variables = {}) {
         let xhttp;
 
         xhttp = await API.request(
@@ -50,10 +50,10 @@ class API {
         return JSON.parse(xhttp.responseText);
     }
 
-    async static q(query, variables = {}) {
+    static async q(query, variables = {}) {
         return API._r("query", query, variables);
     }
-    async static m(query, variables = {}) {
+    static async m(query, variables = {}) {
         return API._r("mutation", query, variables);
     }
 }

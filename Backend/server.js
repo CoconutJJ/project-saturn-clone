@@ -8,10 +8,45 @@ const { graphqlHTTP } = require("express-graphql");
 const { buildSchema } = require("graphql");
 const bodyParser = require("body-parser");
 const qlSchema = buildSchema(fs.readFileSync("api.gql").toString());
+const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
 
-const root = {};
+const User = require("./models/user");
+
+const root = {
+    loginUser: async ({ username, password }, context) => {
+        try {
+            return await User.authenticate(username, password);
+        } catch (e) {
+            console.log(e);
+            throw Error("Internal Server Error");
+        }
+    },
+    signUpUser: async ({ firstname, lastname, username, password, email }) => {
+        try {
+            await User.create(firstname, lastname, username, password, email);
+        } catch (e) {
+            throw Error("Internal Server Error");
+        }
+    },
+};
 
 app.use(morgan("dev"));
+
+app.use(
+    session({
+        store: new MySQLStore({
+            host: "localhost",
+            user: "root",
+            password: "1234",
+            database: "saturn",
+        }),
+        secret: "this is top secret!",
+        resave: false,
+        saveUninitialized: false,
+        key: "saturn-sessid",
+    })
+);
 
 app.use(bodyParser.json());
 

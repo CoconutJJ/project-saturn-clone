@@ -25,10 +25,12 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
     },
 }));
-
+    
 function App() {
+    
     const classes = useStyles();
     const history = useHistory();
+
     let toLoginPage = () => {
         history.push("/login");
     };

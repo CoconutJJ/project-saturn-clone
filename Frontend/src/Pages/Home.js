@@ -10,7 +10,6 @@ const useStyles = makeStyles((theme) => ({
         borderColor: "white",
         color: "white"
     }
-
 }));
 
 function Home() {
