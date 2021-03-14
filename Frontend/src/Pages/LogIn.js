@@ -20,7 +20,7 @@ function LogIn() {
         if (await User.login(username, password)) {
             history.push("/dashboard");
         } else {
-
+            alert("Login Failed")
         }
 
     }
@@ -118,6 +118,7 @@ function LogIn() {
                                 color="primary"
                                 variant="contained"
                                 disabled={!validEntries()}
+                                onClick={login}
                             >
                                 Log in
                             </Button>

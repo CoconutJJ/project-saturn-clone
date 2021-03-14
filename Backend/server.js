@@ -16,7 +16,12 @@ const User = require("./models/user");
 const root = {
     loginUser: async ({ username, password }, context) => {
         try {
-            return await User.authenticate(username, password);
+            if (await User.authenticate(username, password)) {
+                session.username = username;
+                return true;
+            } else {
+                return false;
+            }
         } catch (e) {
             console.log(e);
             throw Error("Internal Server Error");
@@ -25,6 +30,7 @@ const root = {
     signUpUser: async ({ firstname, lastname, username, password, email }) => {
         try {
             await User.create(firstname, lastname, username, password, email);
+            session.username = username;
         } catch (e) {
             throw Error("Internal Server Error");
         }
@@ -32,6 +38,26 @@ const root = {
 };
 
 app.use(morgan("dev"));
+
+app.use((req, res, next) => {
+    if (session.username == undefined || session.username == null) {
+
+        console.log(req.cookies);
+        res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
+    } else {
+        res.cookie(
+            "userdata",
+            JSON.stringify({
+                username: session.username,
+            }),
+            {
+                maxAge: 10e9,
+                sameSite: "strict",
+            }
+        );
+    }
+    next();
+});
 
 app.use(
     session({

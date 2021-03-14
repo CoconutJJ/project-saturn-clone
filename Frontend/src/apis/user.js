@@ -8,7 +8,11 @@ class User {
      */
     static async login(username, password) {
         let data = await API.q(
-            `{ loginUser(username: ${username}, password: ${password}) }`
+            `query($uname: String, $pword: String){ loginUser(username: $uname, password: $pword) }`,
+            {
+                uname: username,
+                pword: password,
+            }
         );
 
         return data.data.loginUser;
