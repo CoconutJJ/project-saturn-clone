@@ -53,19 +53,20 @@ function App() {
                         <Button color="inherit" onClick={toSignUpPage}>Sign Up</Button>
                     </Toolbar>
                 </AppBar>
-                <Switch>
-                    <Route path="/" exact={true}>
-                        <Home />
-                    </Route>
-                    <Route path="/login" exact={true}>
-                        <LogIn />
-                    </Route>
-                    <Route path="/signup" exact={true}>
-                        <SignUp />
-                    </Route>
-                </Switch>
-            </div>
-        </>
+                <Route path="/" exact={true}>
+                    <Home />
+                </Route>
+                <Route path="/login" exact={true}>
+                    <LogIn />
+                </Route>
+                <Route path="/rooms" exact={true}>
+                    <Rooms />
+                </Route>
+                <Route path="/rooms/:id" exact={true}>
+                    <RoomDetails />
+                </Route>
+            </Switch>
+        </Router>
     );
 }
 
