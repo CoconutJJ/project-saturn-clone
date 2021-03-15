@@ -14,7 +14,7 @@ import Typography from "@material-ui/core/Typography";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
-
+import TermPage from "./Pages/Terminal";
 import "./Styles/main.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -62,6 +62,9 @@ function App() {
                     </Route>
                     <Route path="/signup" exact={true}>
                         <SignUp />
+                    </Route>
+                    <Route path="/term" exact={true}>
+                        <TermPage/>
                     </Route>
                 </Switch>
             </div>
