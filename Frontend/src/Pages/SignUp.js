@@ -3,6 +3,7 @@ import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
 import React, { Fragment, useState } from "react";
 import brandLogo from "../Media/saturn.png";
+import { hot } from "react-hot-loader/root";
 function SignUp() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
@@ -12,6 +13,9 @@ function SignUp() {
         return username.length > 0 && password.length > 0;
     };
 
+    const f = async()=>{
+
+    };
 
     return (
         <Fragment>
@@ -118,7 +122,15 @@ function SignUp() {
                             </Grid>
 
                             <div style={{ height: 20 }} />
-                            <Button variant="contained" color="primary">Sign up</Button>
+                            <Button variant="contained" color="primary" onClick={()=>{
+                                f();
+                                // await fetch("/login",{
+                                //     method:'POST',
+                                //     headers:{'Content-Type': 'application/json'},
+                                //     body: JSON.stringify({userName:username,password:password,firstName:'',lastName:'',email:''})
+                                // })
+
+                            }}>Sign up</Button>
                         </div>
                     </Grid>
                 </Grid>
@@ -127,4 +139,4 @@ function SignUp() {
     );
 }
 
-export default SignUp;
+export default hot(SignUp);
