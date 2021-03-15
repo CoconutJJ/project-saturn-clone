@@ -1,11 +1,10 @@
-import { Button, CssBaseline, Grid } from "@material-ui/core";
+import { Button, CssBaseline, Grid, Snackbar } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
 import React, { Fragment, useState } from "react";
-import { hot } from "react-hot-loader/root";
 import { useHistory } from "react-router-dom";
-import brandBackground from "../Media/milkyway.png";
 import brandLogo from "../Media/saturn.png";
+import User from "../apis/user"
 function LogIn() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
@@ -13,15 +12,23 @@ function LogIn() {
     const history = useHistory();
 
     let validEntries = () => {
+        return username.length > 0 && password.length > 0;
+    };
 
-        return username.length > 0 && password.length > 0
+    let login = async () => {
+
+        if (await User.login(username, password)) {
+            history.push("/dashboard");
+        } else {
+            alert("Login Failed")
+        }
 
     }
-
 
     return (
         <Fragment>
             <CssBaseline />
+
             <div>
                 <Grid container style={{ minHeight: "100vh" }}>
                     <Grid item sm={6}>
@@ -46,7 +53,10 @@ function LogIn() {
                     >
                         <div />
                         <div
-                            style={{ display: "flex", flexDirection: "column" }}
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                            }}
                         >
                             <Grid container justify="center">
                                 {/* <img src={brandLogo} width={200} alt="brand logo" /> */}
@@ -104,10 +114,14 @@ function LogIn() {
                                 </Grid>
                             </Grid>
                             <div style={{ height: 20 }} />
-                            <Button color="primary" variant="contained" disabled={!validEntries()}>
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                disabled={!validEntries()}
+                                onClick={login}
+                            >
                                 Log in
                             </Button>
-
                         </div>
                         <div />
                         {/* <Grid container justify="center">
@@ -120,4 +134,4 @@ function LogIn() {
     );
 }
 
-export default hot(LogIn);
+export default LogIn;

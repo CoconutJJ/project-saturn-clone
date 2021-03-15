@@ -8,7 +8,7 @@ class API {
      * @returns {Promise<XMLHttpRequest>}
      */
     static request(method, url, headers, data) {
-        new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let xhttp = new XMLHttpRequest();
 
             xhttp.onload = () => {
@@ -29,10 +29,8 @@ class API {
         });
     }
 
-    async static _r(type, query, variables = {}) {
-        let xhttp;
-
-        xhttp = await API.request(
+    static async _r(type, query, variables = {}) {
+        let xhttp = await API.request(
             "POST",
             "/ql",
             {
@@ -50,10 +48,10 @@ class API {
         return JSON.parse(xhttp.responseText);
     }
 
-    async static q(query, variables = {}) {
+    static async q(query, variables = {}) {
         return API._r("query", query, variables);
     }
-    async static m(query, variables = {}) {
+    static async m(query, variables = {}) {
         return API._r("mutation", query, variables);
     }
 }

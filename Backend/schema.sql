@@ -10,8 +10,9 @@ CREATE TABLE users(
     `lname` VARCHAR(255) NOT NULL,
     `uname` VARCHAR(255) NOT NULL,
     `pword` VARCHAR(255) NOT NULL,
+    `salt`  VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
-    `ctime` INT NOT NULL DEFAULT UNIX_TIMESTAMP(),  -- Creation Time
-    `utime` INT NOT NULL DEFAULT UNIX_TIMESTAMP()   -- Last Update Time
+    `ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation Time
+    `utime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP   -- Last Update Time
 )
 
