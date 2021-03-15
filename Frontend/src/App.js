@@ -14,6 +14,8 @@ import Typography from "@material-ui/core/Typography";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
+import Rooms from "./Pages/Rooms";
+import RoomDetails from "./Pages/RoomDetails";
 
 import "./Styles/main.css";
 
@@ -25,9 +27,8 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
     },
 }));
-    
+
 function App() {
-    
     const classes = useStyles();
     const history = useHistory();
 
@@ -36,37 +37,46 @@ function App() {
     };
 
     let toSignUpPage = () => {
-        history.push("/signup")
-    }
+        history.push("/signup");
+    };
 
     return (
         <>
-            <div className={classes.root}>
-                <AppBar position="static" style={{ backgroundColor: "black" }}>
-                    <Toolbar>
-                        <Typography variant="h6" className={classes.title}>
-                            SATURN
-                        </Typography>
-                        <Button color="inherit" onClick={toLoginPage}>
-                            Login
-                        </Button>
-                        <Button color="inherit" onClick={toSignUpPage}>Sign Up</Button>
-                    </Toolbar>
-                </AppBar>
-                <Route path="/" exact={true}>
-                    <Home />
-                </Route>
-                <Route path="/login" exact={true}>
-                    <LogIn />
-                </Route>
-                <Route path="/rooms" exact={true}>
-                    <Rooms />
-                </Route>
-                <Route path="/rooms/:id" exact={true}>
-                    <RoomDetails />
-                </Route>
-            </Switch>
-        </Router>
+            <Router>
+                <div className={classes.root}>
+                    <AppBar
+                        position="static"
+                        style={{ backgroundColor: "black" }}
+                    >
+                        <Toolbar>
+                            <Typography variant="h6" className={classes.title}>
+                                SATURN
+                            </Typography>
+                            <Button color="inherit" onClick={toLoginPage}>
+                                Login
+                            </Button>
+                            <Button color="inherit" onClick={toSignUpPage}>
+                                Sign Up
+                            </Button>
+                        </Toolbar>
+                    </AppBar>
+                </div>
+                <Switch>
+                    <Route path="/" exact={true}>
+                        <Home />
+                    </Route>
+                    <Route path="/login" exact={true}>
+                        <LogIn />
+                    </Route>
+                    <Route path="/rooms" exact={true}>
+                        <Rooms />
+                    </Route>
+                    <Route path="/rooms/:id" exact={true}>
+                        <RoomDetails />
+                    </Route>
+                </Switch>
+            </Router>
+        </>
     );
 }
 
