@@ -14,6 +14,8 @@ import Typography from "@material-ui/core/Typography";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
+import Dashboard from "./Pages/Dashboard";
+import CodePad from "./Components/CodePad";
 
 import "./Styles/main.css";
 
@@ -25,9 +27,9 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
     },
 }));
-    
+
 function App() {
-    
+
     const classes = useStyles();
     const history = useHistory();
 
@@ -57,11 +59,17 @@ function App() {
                     <Route path="/" exact={true}>
                         <Home />
                     </Route>
-                    <Route path="/login" exact={true}>
+                    <Route path="/login" exact={true}>f
                         <LogIn />
                     </Route>
                     <Route path="/signup" exact={true}>
                         <SignUp />
+                    </Route>
+                    <Route path="/dashboard" exact={true}>
+                        <Dashboard />
+                    </Route>
+                    <Route path="/documents/:id" exact={true}>
+                        <CodePad />
                     </Route>
                 </Switch>
             </div>

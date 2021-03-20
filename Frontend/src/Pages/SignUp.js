@@ -3,18 +3,16 @@ import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
 import React, { Fragment, useState } from "react";
 import brandLogo from "../Media/saturn.png";
-import { hot } from "react-hot-loader/root";
+import { useHistory } from "react-router-dom";
 function SignUp() {
+    const history = useHistory();
+
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
 
 
     let validEntries = () => {
         return username.length > 0 && password.length > 0;
-    };
-
-    const f = async()=>{
-
     };
 
     return (
@@ -101,8 +99,10 @@ function SignUp() {
                                         id="input-with-icon-grid"
                                         label="Password"
                                         value={password}
-                                        onChange={(e) =>
+                                        onChange={(e) =>{
                                             setPassword(e.target.value)
+                                            console.log(password)
+                                        }
                                         }
                                         type="Password"
                                     />
@@ -122,14 +122,18 @@ function SignUp() {
                             </Grid>
 
                             <div style={{ height: 20 }} />
-                            <Button variant="contained" color="primary" onClick={()=>{
-                                f();
-                                // await fetch("/login",{
-                                //     method:'POST',
-                                //     headers:{'Content-Type': 'application/json'},
-                                //     body: JSON.stringify({userName:username,password:password,firstName:'',lastName:'',email:''})
-                                // })
+                            <Button variant="contained" color="primary" onClick={async ()=>{
 
+                                const response = await fetch("/signup",{
+                                    method:'POST',
+                                    headers:{'Content-Type': 'application/json'},
+                                    body: JSON.stringify({userName:username,password,firstName:'',lastName:'',email:''})
+                                })
+                                if (response.status===200){
+                                    localStorage.setItem('userName', JSON.stringify(username));
+                                    history.push("/dashboard");//UPDATE DASHBOARD TO AN AUTH ROUTE
+                                }
+                                
                             }}>Sign up</Button>
                         </div>
                     </Grid>
@@ -139,4 +143,4 @@ function SignUp() {
     );
 }
 
-export default hot(SignUp);
+export default SignUp;
