@@ -48,3 +48,5 @@ class Sandbox {
         await this.container.stop();
     }
 }
+
+module.exports = Sandbox;

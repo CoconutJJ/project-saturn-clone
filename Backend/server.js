@@ -10,8 +10,12 @@ const bodyParser = require("body-parser");
 const qlSchema = buildSchema(fs.readFileSync("api.gql").toString());
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
-
+const { Server } = require("socket.io");
 const User = require("./models/user");
+
+const Sandbox = require('./models/sandbox');
+const http = require("http").Server(app);
+
 
 const root = {
     loginUser: async ({ username, password }, context) => {
@@ -41,7 +45,6 @@ app.use(morgan("dev"));
 
 app.use((req, res, next) => {
     if (session.username == undefined || session.username == null) {
-
         console.log(req.cookies);
         res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
     } else {
@@ -87,10 +90,39 @@ app.use("/ql", (req, res) =>
     })(req, res)
 );
 
+
+
+
+const io = new Server(http, {path: "/pty"});
+
+io.on("connection", async (socket) => {
+    console.log("new connection");
+    let sb = new Sandbox("alpine");
+
+    let stream = await sb.launchSHShell();
+
+    stream.on("data", (data) => {
+        console.log(data.toString());
+        socket.emit("response", data.toString());
+    })
+
+    socket.on("command", (cmd) => {
+        console.log(cmd);
+        stream.write(cmd);
+    })
+
+    socket.on("disconnect", () => {
+        console.log("lost connection");
+        sb.destroy();
+    })
+
+})
+
 app.get("/:path?", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-app.listen(8080, () => {
+
+http.listen(8080, () => {
     console.log("Server Running!");
 });

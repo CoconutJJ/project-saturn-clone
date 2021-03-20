@@ -8,6 +8,7 @@
     "express-session": "^1.17.1",
     "graphql": "^15.5.0",
     "morgan": "^1.10.0",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "socket.io": "^4.0.0"
   }
 }
