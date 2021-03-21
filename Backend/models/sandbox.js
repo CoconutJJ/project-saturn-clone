@@ -1,5 +1,5 @@
 const Docker = require("dockerode");
-
+const stream = require("stream");
 class Sandbox {
     constructor(image) {
         this.dockerConnection = new Docker({
@@ -22,7 +22,7 @@ class Sandbox {
             Cmd: cmd,
             OpenStdin: true,
             StdinOnce: false,
-            AutoRemove: false,
+            AutoRemove: true,
         });
 
         this.stream = await this.container.attach({

@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 const qlSchema = buildSchema(fs.readFileSync("api.gql").toString());
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
-const { Server } = require("socket.io");
+
 const User = require("./models/user");
 
 const Sandbox = require('./models/sandbox');
@@ -90,13 +90,13 @@ app.use("/ql", (req, res) =>
     })(req, res)
 );
 
-
-
-
+const { Server } = require("socket.io");
 const io = new Server(http, {path: "/pty"});
 
 io.on("connection", async (socket) => {
+    
     console.log("new connection");
+
     let sb = new Sandbox("alpine");
 
     let stream = await sb.launchSHShell();
