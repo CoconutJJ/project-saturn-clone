@@ -22,5 +22,7 @@ Visiting `localhost:3000` will setup your video and the id generated at the end 
 
 ## References
 Tutorial with WebRtc and Socket.io: https://www.youtube.com/watch?v=DvlyzDZDEq4
+
 Peer.js library: https://peerjs.com/
+
 Socket.io Documentation: https://socket.io/get-started/chat
