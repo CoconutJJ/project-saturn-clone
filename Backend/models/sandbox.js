@@ -20,6 +20,9 @@ class Sandbox {
             Image: this.image,
             Tty: true,
             Cmd: cmd,
+            HostConfig: {
+                NetworkMode: "none"
+            },
             OpenStdin: true,
             StdinOnce: false,
             AutoRemove: true,

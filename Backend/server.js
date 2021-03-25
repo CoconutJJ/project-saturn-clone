@@ -97,8 +97,8 @@ io.on("connection", async (socket) => {
     
     console.log("new connection");
 
-    let sb = new Sandbox("alpine");
-
+    let sb = new Sandbox("alpine-sandbox");
+    
     let stream = await sb.launchSHShell();
 
     stream.on("data", (data) => {
