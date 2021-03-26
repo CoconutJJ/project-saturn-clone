@@ -98,21 +98,18 @@ io.on("connection", async (socket) => {
     console.log("new connection");
 
     let sb = new Sandbox("alpine-sandbox");
-    
+
     let stream = await sb.launchSHShell();
 
     stream.on("data", (data) => {
-        console.log(data.toString());
         socket.emit("response", data.toString());
     })
 
     socket.on("command", (cmd) => {
-        console.log(cmd);
         stream.write(cmd);
     })
 
     socket.on("disconnect", () => {
-        console.log("lost connection");
         sb.destroy();
     })
 
