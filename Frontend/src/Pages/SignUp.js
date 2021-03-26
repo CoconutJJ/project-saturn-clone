@@ -3,14 +3,27 @@ import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
 import React, { Fragment, useState } from "react";
 import brandLogo from "../Media/saturn.png";
+import User from "../apis/user"
+
 function SignUp() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
+    let [email, setEmail] = useState("");
+    let [fname, setfname] = useState("");
+    let [lname, setlname] = useState("");
+
 
 
     let validEntries = () => {
         return username.length > 0 && password.length > 0;
     };
+
+
+    let signUp = async () => {
+
+        await User.signUp(fname, lname, username, password, email)
+
+    }
 
 
     return (
@@ -54,6 +67,7 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="First Name"
+                                        onChange= {(ev) => {setfname(ev.target.value)}}
                                     />
                                 </Grid>
                                 <Grid item>
@@ -63,6 +77,8 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="Last Name"
+                                        onChange= {(ev) => {setlname(ev.target.value)}}
+
                                     />
                                 </Grid>
                             </Grid>
@@ -113,6 +129,8 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="Email"
+                                        onChange= {(ev) => {setEmail(ev.target.value)}}
+
                                     />
                                 </Grid>
                             </Grid>

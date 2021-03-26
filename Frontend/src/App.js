@@ -14,7 +14,8 @@ import Typography from "@material-ui/core/Typography";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
-
+import Dashboard from "./Pages/Dashboard";
+import User from "./apis/user";
 import "./Styles/main.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -25,9 +26,8 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
     },
 }));
-    
+
 function App() {
-    
     const classes = useStyles();
     const history = useHistory();
 
@@ -36,8 +36,8 @@ function App() {
     };
 
     let toSignUpPage = () => {
-        history.push("/signup")
-    }
+        history.push("/signup");
+    };
 
     return (
         <>
@@ -47,10 +47,16 @@ function App() {
                         <Typography variant="h6" className={classes.title}>
                             SATURN
                         </Typography>
-                        <Button color="inherit" onClick={toLoginPage}>
-                            Login
-                        </Button>
-                        <Button color="inherit" onClick={toSignUpPage}>Sign Up</Button>
+                        {!User.isLoggedIn() ? (
+                            <>
+                                <Button color="inherit" onClick={toLoginPage}>
+                                    Login
+                                </Button>
+                                <Button color="inherit" onClick={toSignUpPage}>
+                                    Sign Up
+                                </Button>
+                            </>
+                        ) : null}
                     </Toolbar>
                 </AppBar>
                 <Switch>
@@ -62,6 +68,9 @@ function App() {
                     </Route>
                     <Route path="/signup" exact={true}>
                         <SignUp />
+                    </Route>
+                    <Route path="/dashboard" exact={true}>
+                        <Dashboard />
                     </Route>
                 </Switch>
             </div>

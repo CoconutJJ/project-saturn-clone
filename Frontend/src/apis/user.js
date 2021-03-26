@@ -40,5 +40,25 @@ class User {
             }
         );
     }
+
+    static isLoggedIn() {
+
+        let cookie_string = document.cookie;
+
+        if (cookie_string.length == 0) {
+            return false;
+        }
+
+        let cookies = cookie_string.split(";")
+
+        for (let c of cookies) {
+
+            if (c.split("=")[0] == "userdata") return true;
+
+        }
+
+        return false;
+    }
+
 }
 export default User;

@@ -27,6 +27,12 @@ const root = {
             throw Error("Internal Server Error");
         }
     },
+    loggedIn: ({}, context) => {
+        return (
+            context.req.session.username !== undefined &&
+            context.res.session.username !== null
+        );
+    },
     signUpUser: async ({ firstname, lastname, username, password, email }) => {
         try {
             await User.create(firstname, lastname, username, password, email);
@@ -38,26 +44,7 @@ const root = {
 };
 
 app.use(morgan("dev"));
-
-app.use((req, res, next) => {
-    if (session.username == undefined || session.username == null) {
-
-        console.log(req.cookies);
-        res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
-    } else {
-        res.cookie(
-            "userdata",
-            JSON.stringify({
-                username: session.username,
-            }),
-            {
-                maxAge: 10e9,
-                sameSite: "strict",
-            }
-        );
-    }
-    next();
-});
+app.use(bodyParser.json());
 
 app.use(
     session({
@@ -74,7 +61,23 @@ app.use(
     })
 );
 
-app.use(bodyParser.json());
+app.use((req, res, next) => {
+    if (req.session.username == undefined || req.session.username == null) {
+        res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
+    } else {
+        res.cookie(
+            "userdata",
+            JSON.stringify({
+                username: req.session.username,
+            }),
+            {
+                maxAge: 10e9,
+                sameSite: "strict",
+            }
+        );
+    }
+    next();
+});
 
 app.use("/static", express.static(path.join(__dirname, "../Frontend/dist")));
 
@@ -86,6 +89,7 @@ app.use("/ql", (req, res) =>
         context: { req, res },
     })(req, res)
 );
+
 
 app.get("/:path?", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
