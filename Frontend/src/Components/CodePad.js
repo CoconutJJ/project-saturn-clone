@@ -29,7 +29,9 @@ function CodePad() {
   }
   useEffect(() => {
     if (!editor) return;
+    const cursorBefore = editor.getSelections();
     if (editor.getValue() !== code) editor.setValue(code);
+    editor.setSelections(cursorBefore);
   }, [code])
 
   function subscribeDoc() {
