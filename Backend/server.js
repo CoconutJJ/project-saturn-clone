@@ -24,7 +24,7 @@ const root = {
                 return false;
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
             throw Error("Internal Server Error");
         }
     },
@@ -48,12 +48,23 @@ const root = {
     },
     createProject: async ({name,env}, context) => {
         try {
-            console.log("createProject",context.req.session);
             if ( context.req.session.username !== undefined &&
                 context.req.session.username !== null) {
                    return await Project.create(name,env, context.req.session.username); 
             }else{
                 return false;
+            }
+        } catch (e) {
+            throw Error("Internal Server Error");
+        }
+    },
+    getProjects: async ({relationship}, context) => {
+        try {
+            if ( context.req.session.username !== undefined &&
+                context.req.session.username !== null) {
+                   return await Project.get(relationship,context.req.session.username); 
+            }else{
+                return [];
             }
         } catch (e) {
             throw Error("Internal Server Error");

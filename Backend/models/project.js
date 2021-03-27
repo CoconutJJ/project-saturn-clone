@@ -17,6 +17,21 @@ class Project {
         return results.affectedRows != 0;
     }
 
+    /**
+     *  Get an array of projects with specific relationship to a user.
+     * @param {string} relationship
+     * @param {string} username  
+     */
+    static async get(relationship, username) {
+        if (relationship == "owned") {
+            let [results, fields] = await Project.db.query(
+                "SELECT * FROM projects WHERE owner = ?",
+                [username]);
+            return results;
+        }
+        return[];
+    }
+
 }
 
 module.exports = Project;

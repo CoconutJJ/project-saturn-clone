@@ -1,6 +1,13 @@
+type Project  {
+    name: String!,
+    env: String!,
+    owner: String!
+}
+
 type Query {
     loginUser(username: String, password: String): Boolean
     loggedIn: Boolean
+    getProjects(relationship: String): [Project]
 }
 
 type Mutation {

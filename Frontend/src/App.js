@@ -39,6 +39,12 @@ function App() {
         history.push("/signup");
     };
 
+    let test=()=>{
+        const result = User.isLoggedIn();
+        console.log(result);
+        return result;
+    }
+
     return (
         <>
             <div className={classes.root}>
@@ -47,7 +53,7 @@ function App() {
                         <Typography variant="h6" className={classes.title}>
                             SATURN
                         </Typography>
-                        {!User.isLoggedIn() ? (
+                        {!test() ? (
                             <>
                                 <Button color="inherit" onClick={toLoginPage}>
                                     Login
