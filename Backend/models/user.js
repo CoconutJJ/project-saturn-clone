@@ -13,11 +13,9 @@ class User {
      */
     static async authenticate(username, password) {
         let [results, fields] = await User.db.query("SELECT * FROM users WHERE uname = ?", [username]);
-
         if (results.length == 0) {
             return false;
         }
-
         return User._verifyPassword(password, results[0]["pword"], results[0]["salt"])  
     }
 
@@ -36,6 +34,7 @@ class User {
         let [results, fields] = await User.db.query(
             "INSERT INTO users (fname, lname, uname, pword, salt, email) VALUES (?,?,?,?,?,?)",
             [firstname, lastname, username, hashedPassword, salt, email]);
+        return results.affectedRows != 0;
     }
 
     /**

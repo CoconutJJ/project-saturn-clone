@@ -14,5 +14,14 @@ CREATE TABLE users(
     `email` VARCHAR(255) NOT NULL,
     `ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation Time
     `utime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP   -- Last Update Time
-)
+);
+
+CREATE TABLE projects(
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `env` ENUM('python', 'c'),
+    `owner` VARCHAR(255) NOT NULL,
+    `ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation Time
+    `utime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP   -- Last Update Time
+);
 

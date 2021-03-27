@@ -25,6 +25,7 @@ class Database {
 
             Database.pool.query(sql, params, async (err, results, fields) => {
                 if (err) {
+                    console.log(err);
                     reject(err);
                     return;
                 }

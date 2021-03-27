@@ -12,12 +12,13 @@ const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 
 const User = require("./models/user");
+const Project = require("./models/project");
 
 const root = {
     loginUser: async ({ username, password }, context) => {
         try {
             if (await User.authenticate(username, password)) {
-                session.username = username;
+                context.req.session.username = username;
                 return true;
             } else {
                 return false;
@@ -27,20 +28,37 @@ const root = {
             throw Error("Internal Server Error");
         }
     },
-    loggedIn: ({}, context) => {
+    loggedIn: ({ }, context) => {
         return (
             context.req.session.username !== undefined &&
-            context.res.session.username !== null
+            context.req.session.username !== null
         );
     },
     signUpUser: async ({ firstname, lastname, username, password, email }) => {
         try {
-            await User.create(firstname, lastname, username, password, email);
-            session.username = username;
+            if(await User.create(firstname, lastname, username, password, email)){
+                context.req.session.username = username;
+                return true;
+            }else{
+                return false;
+            }
         } catch (e) {
             throw Error("Internal Server Error");
         }
     },
+    createProject: async ({name,env}, context) => {
+        try {
+            console.log("createProject",context.req.session);
+            if ( context.req.session.username !== undefined &&
+                context.req.session.username !== null) {
+                   return await Project.create(name,env, context.req.session.username); 
+            }else{
+                return false;
+            }
+        } catch (e) {
+            throw Error("Internal Server Error");
+        }
+    }
 };
 
 app.use(morgan("dev"));
