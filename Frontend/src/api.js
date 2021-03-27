@@ -52,7 +52,7 @@ class API {
         return API._r("query", query, variables);
     }
     static async m(query, variables = {}) {
-        return API._r("mutation", query, variables);
+        return API._r("query", query, variables);
     }
 }
 

@@ -136,7 +136,9 @@ function SignUp() {
                             </Grid>
 
                             <div style={{ height: 20 }} />
-                            <Button variant="contained" color="primary">Sign up</Button>
+                            <Button variant="contained" color="primary" onClick={()=>{
+                                if(validEntries()) signUp();
+                            }}>Sign up</Button>
                         </div>
                     </Grid>
                 </Grid>
