@@ -23,7 +23,7 @@ class Project {
     */
     static async get(relationship) {
         let data = await API.q(
-            `query($relationship: String){ getProjects(relationship: $relationship){name,owner,env}}`,
+            `query($relationship: String){ getProjects(relationship: $relationship){name,owner,env,id}}`,
             {
                 relationship
             }

@@ -12,6 +12,7 @@ import videoIcon from "../Media/video-chat.png";
 import termIcon from "../Media/code-terminal.png";
 import Project from "../apis/project"
 function Dashboard() {
+    const history = useHistory();
     const [newProjectEnv, setNewProjectEnv] = useState(null);
     const [newProjectName, setNewProjectName] = useState("");
     const [projectDisplayType, setProjectDisplayType] = useState("owned");
@@ -27,25 +28,30 @@ function Dashboard() {
     };
 
     const handleProjectDisplayTypeChange = async (event, newType) => {
-        if(!newType) return;
+        if (!newType) return;
         await updateProjectDisplay(newType);
         setProjectDisplayType(newType);
     };
 
-    const ProjectCard = (name, owner, env) => {
-        return (
-            <Card>
-                <CardContent>
-                    <Typography>{`Name: ${name}`}</Typography>
-                    <Typography>{`Owner: ${owner}`}</Typography>
-                    <Typography>{`Environment: ${env}`}</Typography>
-                </CardContent>
-            </Card>
-        )
-    }
     useEffect(() => {
         updateProjectDisplay(projectDisplayType);
-    },[])
+    }, [])
+
+    const ProjectCard = (name, owner, env,id) => {
+        return (
+            <ButtonBase key={id} onClick={()=>{
+                history.push(`/projects/${id}`);
+            }}>
+                <Card>
+                    <CardContent>
+                        <Typography>{`Name: ${name}`}</Typography>
+                        <Typography>{`Owner: ${owner}`}</Typography>
+                        <Typography>{`Environment: ${env}`}</Typography>
+                    </CardContent>
+                </Card>
+            </ButtonBase>
+        )
+    }
 
     return (
         <div style={{ padding: "2%" }}>
@@ -86,7 +92,7 @@ function Dashboard() {
                                                     }}
                                                 ></div>
                                             Python 3.XX
-                                        </Paper>
+                                            </Paper>
                                         </ToggleButton>
                                         <ToggleButton value="c">
                                             {/* https://iconscout.com/icon/c-programming */}
@@ -146,7 +152,7 @@ function Dashboard() {
                             <Grid container>
                                 {
                                     projectDisplayData && (
-                                        projectDisplayData.map(({name,owner,env})=>ProjectCard(name,owner,env))
+                                        projectDisplayData.map(({ name, owner, env,id }) => ProjectCard(name, owner, env,id))
                                         // null
                                     )
                                 }

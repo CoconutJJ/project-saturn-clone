@@ -3,6 +3,9 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
+const APP_DIR = path.resolve(__dirname, './src');
+const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const config = {
     entry: ["./src/index.js"],
     output: {
@@ -37,6 +40,10 @@ const config = {
                 test: /\.css$/,
                 use: ["style-loader", "css-loader"],
             },
+            {
+                test: /\.ttf$/,
+                use: ['file-loader']
+            }
         ],
     },
     resolve: {
@@ -50,6 +57,10 @@ const config = {
             appMountId: "app",
             filename: "index.html",
             template: "./src/Templates/index.html",
+        }),
+        new MonacoWebpackPlugin({
+            // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
+            languages: ['json', 'python']
         }),
     ],
     optimization: {

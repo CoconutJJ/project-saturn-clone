@@ -1,7 +1,8 @@
 type Project  {
-    name: String!,
-    env: String!,
+    name: String!
+    env: String!
     owner: String!
+    id : Int!
 }
 
 type Query {
