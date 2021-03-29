@@ -15,7 +15,7 @@ const User = require("./models/user");
 
 const Sandbox = require('./models/sandbox');
 const http = require("http").Server(app);
-
+const Interrupts = require("./interrupts");
 
 const root = {
     loginUser: async ({ username, password }, context) => {
@@ -119,7 +119,7 @@ app.get("/:path?", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-
+Interrupts.init();
 http.listen(8080, () => {
     console.log("Server Running!");
 });

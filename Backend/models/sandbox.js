@@ -1,5 +1,10 @@
 const Docker = require("dockerode");
+const fs = require("fs");
+const uuid = require("uuid")
 const stream = require("stream");
+const path = require("path");
+const Interrupts = require("../interrupts");
+
 class Sandbox {
     constructor(image) {
         this.dockerConnection = new Docker({
@@ -9,6 +14,7 @@ class Sandbox {
         this.image = image;
         this.stream = null;
         this.container = null;
+        this.mountPath = "";
     }
 
     /**
@@ -21,7 +27,8 @@ class Sandbox {
             Tty: true,
             Cmd: cmd,
             HostConfig: {
-                NetworkMode: "none"
+                NetworkMode: "none",
+                Binds: [this.mountPath + ":/home/appuser/workdir"]
             },
             OpenStdin: true,
             StdinOnce: false,
@@ -37,18 +44,41 @@ class Sandbox {
         await this.container.start();
     }
 
+
+    createMount() {
+        this.mountPath = path.join(__dirname, uuid.v4());
+        fs.mkdirSync(this.mountPath);
+
+        Interrupts.addOnExitJob(() => {
+            this.destroy();
+        })
+    }
+
+    destroyHostMount() {
+        fs.rmdirSync(this.mountPath);
+    }
+
     /**
      * Launches a /bin/sh shell in the docker container
      * @returns {Promise<NodeJS.ReadWriteStream>}
      */
     async launchSHShell() {
+
+        this.createMount();
+
         await this._run("/bin/sh");
+
+        Interrupts.addOnExitJob(() => {
+            this.destroy();
+        })
 
         return this.stream;
     }
 
     async destroy() {
         await this.container.stop();
+
+        this.destroyHostMount();
     }
 }
 
