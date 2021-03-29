@@ -25,3 +25,10 @@ CREATE TABLE projects(
     `utime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP   -- Last Update Time
 );
 
+CREATE TABLE documents(
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `projectID` INT,
+    `ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation Time
+    `utime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP   -- Last Update Time
+);

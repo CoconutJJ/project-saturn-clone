@@ -5,13 +5,20 @@ type Project  {
     id : Int!
 }
 
+type Document  {
+    name: String!
+    id : Int!
+}
+
 type Query {
     loginUser(username: String, password: String): Boolean
     loggedIn: Boolean
     getProjects(relationship: String): [Project]
+    getDocuments(projectID: Int): [Document]
 }
 
 type Mutation {
     signUpUser(firstname: String, lastname: String, username: String, password: String, email: String): Boolean
     createProject(name: String, env: String): Boolean
+    createDocument(name: String, projectID: Int): Boolean
 }

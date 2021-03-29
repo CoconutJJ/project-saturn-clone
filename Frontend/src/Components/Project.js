@@ -4,10 +4,10 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
 import clsx from 'clsx';
-import React,{useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import CodePad from './CodePad';
-
-
+import { useParams } from "react-router-dom";
+import Document from '../apis/document';
 
 const drawerWidth = 240;
 
@@ -53,10 +53,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Project() {
+    const { id: projectID } = useParams();
     const classes = useStyles();
     const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = React.useState(false);
-    const [documents, setDocuments] = useState([{ name: "test1.py" }, { name: "test2.py" }]);
+    const [documents, setDocuments] = useState([]);
+    const [newDocumentName, setNewDocumentName] = useState("");
+    const [documentID, setDocumentID] = useState("");
+
+    const reloadProject = async () => {
+        let data = await Document.get(parseInt(projectID));
+        setDocuments(data);
+    }
+    useEffect(() => {
+        reloadProject();
+    }, [])
 
     return (
         <div className={classes.root}>
@@ -85,19 +96,31 @@ export default function Project() {
                         <ListItemIcon></ListItemIcon>
                         <ListItemText>
                             <TextField
+                                value={newDocumentName}
                                 label="New document name"
+                                onChange={(e) =>
+                                    setNewDocumentName(e.target.value)
+                                }
                             />
                         </ListItemText>
                     </ListItem>
                     <ListItem >
                         <ListItemIcon></ListItemIcon>
-                        <Button>Create</Button>
+                        <Button disabled={!newDocumentName}
+                            onClick={() => {
+                                Document.createDocument(newDocumentName, parseInt(projectID))
+                                reloadProject();
+                            }}>
+                            Create
+                            </Button>
                     </ListItem>
                 </List>
                 <Divider />
                 <List>
-                    {documents.map(({name}) => (
-                        <ListItem button key={name}>
+                    {documents.map(({ name, id }) => (
+                        <ListItem button key={name} onClick={() => {
+                            setDocumentID(id)
+                        }}>
                             <ListItemIcon></ListItemIcon>
                             <ListItemText primary={name} />
                         </ListItem>
@@ -120,7 +143,7 @@ export default function Project() {
 
             <main className={classes.content}>
                 <div className={classes.toolbar} />
-                <CodePad/>
+                <CodePad projectID={projectID} documentID={documentID} />
             </main>
         </div>
     );
