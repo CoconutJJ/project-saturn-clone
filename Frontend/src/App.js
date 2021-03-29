@@ -16,8 +16,12 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 import Rooms from "./Pages/Rooms";
 import RoomDetails from "./Pages/RoomDetails";
-
+import importScript from "./Pages/ImportScript";
 import "./Styles/main.css";
+//import { Room } from "@material-ui/icons";
+import Room from "./Pages/Room";
+import CreateRoom from "./Pages/CreateRoom";
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -31,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
 function App() {
     const classes = useStyles();
     const history = useHistory();
-
+    //importScript("https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js");
     let toLoginPage = () => {
         history.push("/login");
     };
@@ -68,12 +72,8 @@ function App() {
                     <Route path="/login" exact={true}>
                         <LogIn />
                     </Route>
-                    <Route path="/rooms" exact={true}>
-                        <Rooms />
-                    </Route>
-                    <Route path="/rooms/:id" exact={true}>
-                        <RoomDetails />
-                    </Route>
+                    <Route path="/rooms" exact component={CreateRoom} />
+                    <Route path="/room/:roomID" component={Room} />
                 </Switch>
             </Router>
         </>

@@ -3,15 +3,21 @@
 import React from 'react'
 import { useParams } from "react-router-dom";
 import importScript from './ImportScript';
-//import { io } from "socket.io-client";
-//const socket = io('/rooms');
-
-
+import "../Styles/index.css";
+import openSocket from 'socket.io-client';
+import { videochat } from './VideoChat';
 
 const RoomDetails = () => {
     const { id } = useParams();
-    //importScript("../src/Pages/Script.js")
+    console.log(id)
+    
+    const vid = videochat(id, 3);
+    console.log(vid);
+    
+
+
     return(
+        
         <div className="video-grid">
         </div>
     );
