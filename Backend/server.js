@@ -14,6 +14,10 @@ const MySQLStore = require("express-mysql-session")(session);
 const User = require("./models/user");
 const Project = require("./models/project");
 
+const Sandbox = require('./models/sandbox');
+const http = require("http").Server(app);
+const Interrupts = require("./interrupts");
+
 const root = {
     loginUser: async ({ username, password }, context) => {
         try {
@@ -75,6 +79,25 @@ const root = {
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+    if (session.username == undefined || session.username == null) {
+        console.log(req.cookies);
+        res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
+    } else {
+        res.cookie(
+            "userdata",
+            JSON.stringify({
+                username: session.username,
+            }),
+            {
+                maxAge: 10e9,
+                sameSite: "strict",
+            }
+        );
+    }
+    next();
+});
+
 app.use(
     session({
         store: new MySQLStore({
@@ -119,11 +142,36 @@ app.use("/ql", (req, res) =>
     })(req, res)
 );
 
+const { Server } = require("socket.io");
+const io = new Server(http, {path: "/pty"});
+
+io.on("connection", async (socket) => {
+    
+    console.log("new connection");
+
+    let sb = new Sandbox("alpine-sandbox");
+
+    let stream = await sb.launchSHShell();
+
+    stream.on("data", (data) => {
+        socket.emit("response", data.toString());
+    })
+
+    socket.on("command", (cmd) => {
+        stream.write(cmd);
+    })
+
+    socket.on("disconnect", () => {
+        sb.destroy();
+    })
+
+})
 
 app.get("/:path?", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-app.listen(8080, () => {
+Interrupts.init();
+http.listen(8080, () => {
     console.log("Server Running!");
 });
