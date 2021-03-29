@@ -16,14 +16,29 @@ const ShareDB = require('sharedb');
 const WebSocket = require('ws');
 const WebSocketJSONStream = require('@teamwork/websocket-json-stream');
 
-const shareDb = new ShareDB();
+// const shareDb = new ShareDB();
 const User = require("./models/user");
 const Project = require("./models/project");
 const Document = require("./models/document");
 
-function createDocInShareDb(projectID,documentID) {
+const mysqlOptions = {
+    db: {
+        host: "localhost",
+        user: "root",
+        password: "1234",
+        database: "saturn",
+        connectionLimit: 5
+    },
+    ops_table: 'shareDbOps', snapshots_table: 'shareDbSnapShots', debug: true
+};
+const mySQLDB = require('sharedb-mysql')(mysqlOptions);
+// console.log(mySQLDB)
+const shareDb = require('sharedb')({ db: mySQLDB })
+// console.log(shareDb)
+
+function createDocInShareDb(projectID, documentID) {
     var connection = shareDb.connect();
-    var doc = connection.get(projectID.toString(),documentID.toString());
+    var doc = connection.get(projectID.toString(), documentID.toString());
     doc.fetch(function (err) {
         if (err) throw err;
         if (doc.type === null) {
@@ -54,58 +69,58 @@ const root = {
     },
     signUpUser: async ({ firstname, lastname, username, password, email }) => {
         try {
-            if(await User.create(firstname, lastname, username, password, email)){
+            if (await User.create(firstname, lastname, username, password, email)) {
                 context.req.session.username = username;
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (e) {
             throw Error("Internal Server Error");
         }
     },
-    createProject: async ({name,env}, context) => {
+    createProject: async ({ name, env }, context) => {
         try {
-            if ( context.req.loggedIn) {
-                   return await Project.create(name,env, context.req.session.username); 
-            }else{
+            if (context.req.loggedIn) {
+                return await Project.create(name, env, context.req.session.username);
+            } else {
                 return false;
             }
         } catch (e) {
             throw Error("Internal Server Error");
         }
     },
-    createDocument: async ({name,projectID}, context) => {
+    createDocument: async ({ name, projectID }, context) => {
         try {
-            if ( context.req.loggedIn ) {
-                let result = await Document.create(name,projectID);
-                if(result.isCreated){
-                    createDocInShareDb(projectID,result.documentID);
-                } 
+            if (context.req.loggedIn) {
+                let result = await Document.create(name, projectID);
+                if (result.isCreated) {
+                    createDocInShareDb(projectID, result.documentID);
+                }
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (e) {
             throw Error("Internal Server Error");
         }
     },
-    getProjects: async ({relationship}, context) => {
+    getProjects: async ({ relationship }, context) => {
         try {
-            if ( context.req.loggedIn) {
-                   return await Project.get(relationship,context.req.session.username); 
-            }else{
+            if (context.req.loggedIn) {
+                return await Project.get(relationship, context.req.session.username);
+            } else {
                 return [];
             }
         } catch (e) {
             throw Error("Internal Server Error");
         }
     },
-    getDocuments: async ({projectID}, context) => {
+    getDocuments: async ({ projectID }, context) => {
         try {
-            if ( context.req.loggedIn) {
-                   return await Document.get(projectID); 
-            }else{
+            if (context.req.loggedIn) {
+                return await Document.get(projectID);
+            } else {
                 return [];
             }
         } catch (e) {
