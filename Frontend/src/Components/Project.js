@@ -11,6 +11,7 @@ import {
     ListItemText,
     TextField,
     Button,
+    Grid
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
@@ -19,12 +20,13 @@ import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import clsx from "clsx";
 import React, { useState } from "react";
 import CodePad from "./CodePad";
-
+import Terminal from "./Terminal";
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
     root: {
         display: "flex",
+        padding: "1%"
     },
     hide: {
         display: "none",
@@ -131,11 +133,21 @@ export default function Project() {
                     </ListItem>
                 </List>
             </Drawer>
+            
+            <Grid container>
+                <Grid item xs={6}>
+                    <CodePad/>
+                </Grid>
+                <Grid item xs={6}>
+                    <Terminal/>
+                </Grid>
+            </Grid>
 
-            <main className={classes.content}>
+            {/* <main className={classes.content}>
                 <div className={classes.toolbar} />
                 <CodePad />
-            </main>
+                <Terminal/>
+            </main> */}
         </div>
     );
 }

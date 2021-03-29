@@ -18,7 +18,6 @@ import Dashboard from "./Pages/Dashboard";
 import Project from "./Components/Project";
 import User from "./apis/user";
 import { Grid } from '@material-ui/core';
-import TermPage from "./Pages/Terminal";
 import "./Styles/main.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -91,9 +90,9 @@ function App() {
                             <Route path="/projects" exact={true}>
                                 <Project />
                             </Route>
-                            <Route path="/term" exact={true}>
+                            {/* <Route path="/term" exact={true}>
                                 <TermPage/>
-                            </Route>
+                            </Route> */}
                         </Switch>
 
                     </Grid>

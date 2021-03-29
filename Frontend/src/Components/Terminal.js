@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { XTerm } from "xterm-for-react";
 import { io } from "socket.io-client";
 import XTermBuffer from "../apis/xterm-buffer";
-const TermPage = () => {
+
+const Terminal = () => {
     let socket;
     /**
      * @type {XTermBuffer}
@@ -54,4 +55,4 @@ const TermPage = () => {
     return <XTerm ref={xtermRef} onData={onData} />;
 };
 
-export default TermPage;
+export default Terminal;
