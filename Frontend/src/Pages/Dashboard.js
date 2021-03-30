@@ -3,14 +3,20 @@ import { useHistory } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import { ButtonBase, Card, CardContent, TextField, Button } from "@material-ui/core";
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import {
+    ButtonBase,
+    Card,
+    CardContent,
+    TextField,
+    Button,
+} from "@material-ui/core";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import pyLogo from "../Media/python-logo.png";
 import cLogo from "../Media/c-logo.png";
 import videoIcon from "../Media/video-chat.png";
 import termIcon from "../Media/code-terminal.png";
-import Project from "../apis/project"
+import Project from "../apis/project";
 function Dashboard() {
     const history = useHistory();
     const [newProjectEnv, setNewProjectEnv] = useState(null);
@@ -21,7 +27,7 @@ function Dashboard() {
     const updateProjectDisplay = async (type) => {
         let data = await Project.get(type);
         setProjectDisplayData(data);
-    }
+    };
 
     const handleEnvSelection = (event, newEnv) => {
         setNewProjectEnv(newEnv);
@@ -35,13 +41,16 @@ function Dashboard() {
 
     useEffect(() => {
         updateProjectDisplay(projectDisplayType);
-    }, [])
+    }, []);
 
-    const ProjectCard = (name, owner, env,id) => {
+    const ProjectCard = (name, owner, env, id) => {
         return (
-            <ButtonBase key={id} onClick={()=>{
-                history.push(`/projects/${id}`);
-            }}>
+            <ButtonBase
+                key={id}
+                onClick={() => {
+                    history.push(`/projects/${id}`);
+                }}
+            >
                 <Card>
                     <CardContent>
                         <Typography>{`Name: ${name}`}</Typography>
@@ -50,8 +59,8 @@ function Dashboard() {
                     </CardContent>
                 </Card>
             </ButtonBase>
-        )
-    }
+        );
+    };
 
     return (
         <div style={{ padding: "2%" }}>
@@ -68,7 +77,9 @@ function Dashboard() {
                                     <TextField
                                         label="Project name"
                                         value={newProjectName}
-                                        onChange={(e) => setNewProjectName(e.target.value)}
+                                        onChange={(e) =>
+                                            setNewProjectName(e.target.value)
+                                        }
                                     />
                                 </Grid>
                                 <Grid item container direction="column">
@@ -86,12 +97,13 @@ function Dashboard() {
                                                 <div
                                                     style={{
                                                         backgroundImage: `url(${pyLogo})`,
-                                                        backgroundSize: "contain",
+                                                        backgroundSize:
+                                                            "contain",
                                                         height: "50px",
                                                         width: "150px",
                                                     }}
                                                 ></div>
-                                            Python 3.XX
+                                                Python 3.XX
                                             </Paper>
                                         </ToggleButton>
                                         <ToggleButton value="c">
@@ -100,13 +112,14 @@ function Dashboard() {
                                                 <div
                                                     style={{
                                                         backgroundImage: `url(${cLogo})`,
-                                                        backgroundSize: "contain",
+                                                        backgroundSize:
+                                                            "contain",
                                                         height: "50px",
                                                         width: "50px",
                                                     }}
                                                 ></div>
-                                            GCC C
-                                        </Paper>
+                                                GCC C
+                                            </Paper>
                                         </ToggleButton>
                                     </ToggleButtonGroup>
                                 </Grid>
@@ -114,10 +127,17 @@ function Dashboard() {
                                     <Button
                                         color="primary"
                                         variant="contained"
-                                        disabled={!(newProjectName && newProjectEnv)}
+                                        disabled={
+                                            !(newProjectName && newProjectEnv)
+                                        }
                                         onClick={() => {
-                                            Project.createProject(newProjectName, newProjectEnv)
-                                            updateProjectDisplay(projectDisplayType);
+                                            Project.createProject(
+                                                newProjectName,
+                                                newProjectEnv
+                                            );
+                                            updateProjectDisplay(
+                                                projectDisplayType
+                                            );
                                             setNewProjectName("");
                                         }}
                                     >
@@ -131,10 +151,8 @@ function Dashboard() {
                 <Grid item xs={12}>
                     <Card>
                         <CardContent>
-                            <Typography variant="h6">
-                                Your Projects
-                            </Typography>
-                            <Grid container >
+                            <Typography variant="h6">Your Projects</Typography>
+                            <Grid container>
                                 <ToggleButtonGroup
                                     value={projectDisplayType}
                                     exclusive
@@ -150,11 +168,12 @@ function Dashboard() {
                                 </ToggleButtonGroup>
                             </Grid>
                             <Grid container>
-                                {
-                                    projectDisplayData && (
-                                        projectDisplayData.map(({ name, owner, env,id }) => ProjectCard(name, owner, env,id))
-                                        // null
+                                {projectDisplayData &&
+                                    projectDisplayData.map(
+                                        ({ name, owner, env, id }) =>
+                                            ProjectCard(name, owner, env, id)
                                     )
+                                    // null
                                 }
                             </Grid>
                         </CardContent>

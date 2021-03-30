@@ -90,6 +90,9 @@ function App() {
                             <Route path="/projects" exact={true}>
                                 <Project />
                             </Route>
+                            {/* <Route path="/term" exact={true}>
+                                <TermPage/>
+                            </Route> */}
                         </Switch>
 
                     </Grid>

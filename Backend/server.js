@@ -15,12 +15,13 @@ const http = require('http');
 const ShareDB = require('sharedb');
 const WebSocket = require('ws');
 const WebSocketJSONStream = require('@teamwork/websocket-json-stream');
-
-// const shareDb = new ShareDB();
 const User = require("./models/user");
 const Project = require("./models/project");
 const Document = require("./models/document");
 
+const Sandbox = require('./models/sandbox');
+
+const Interrupts = require("./interrupts");
 const mysqlOptions = {
     db: {
         host: "localhost",
@@ -35,7 +36,6 @@ const mySQLDB = require('sharedb-mysql')(mysqlOptions);
 // console.log(mySQLDB)
 const shareDb = require('sharedb')({ db: mySQLDB })
 // console.log(shareDb)
-
 function createDocInShareDb(projectID, documentID) {
     var connection = shareDb.connect();
     var doc = connection.get(projectID.toString(), documentID.toString());
@@ -46,7 +46,6 @@ function createDocInShareDb(projectID, documentID) {
         }
     });
 }
-
 const root = {
     loginUser: async ({ username, password }, context) => {
         try {
@@ -69,17 +68,17 @@ const root = {
     },
     signUpUser: async ({ firstname, lastname, username, password, email }) => {
         try {
-            if (await User.create(firstname, lastname, username, password, email)) {
+            if(await User.create(firstname, lastname, username, password, email)){
                 context.req.session.username = username;
                 return true;
-            } else {
+            }else{
                 return false;
             }
         } catch (e) {
             throw Error("Internal Server Error");
         }
     },
-    createProject: async ({ name, env }, context) => {
+    createProject: async ({name,env}, context) => {
         try {
             if (context.req.loggedIn) {
                 return await Project.create(name, env, context.req.session.username);
@@ -128,7 +127,6 @@ const root = {
         }
     }
 };
-
 
 
 app.use(morgan("dev"));
@@ -180,13 +178,36 @@ app.use("/ql", (req, res) =>
     })(req, res)
 );
 
+const { Server } = require("socket.io");
+const io = new Server(http, {path: "/pty"});
+
+io.on("connection", async (socket) => {
+    
+    console.log("new connection");
+
+    let sb = new Sandbox("alpine-sandbox");
+
+    let stream = await sb.launchSHShell();
+
+    stream.on("data", (data) => {
+        socket.emit("response", data.toString());
+    })
+
+    socket.on("command", (cmd) => {
+        stream.write(cmd);
+    })
+
+    socket.on("disconnect", () => {
+        sb.destroy();
+    })
+
+})
 
 app.get("/:path?", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-
-
+// Interrupts.init();
 const server = http.createServer(app);
 
 const wss = new WebSocket.Server({ server: server });
