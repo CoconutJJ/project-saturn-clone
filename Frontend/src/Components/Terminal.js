@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import XTermBuffer from "../apis/xterm-buffer";
 
 const Terminal = () => {
+
     let socket;
     /**
      * @type {XTermBuffer}
@@ -17,6 +18,11 @@ const Terminal = () => {
             xtermRef.current.terminal.write(data);
         });
         buffer = new XTermBuffer(xtermRef.current.terminal);
+
+        return () => {
+            socket.close()
+        }
+
     }, []);
 
     /**

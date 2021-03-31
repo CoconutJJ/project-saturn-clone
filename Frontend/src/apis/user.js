@@ -25,6 +25,7 @@ class User {
      * @param {string} username
      * @param {string} password
      * @param {string} email
+     * @returns {Promise<boolean>}
      */
     static async signUp(firstname, lastname, username, password, email) {
         let data = await API.m(
@@ -39,6 +40,8 @@ class User {
                 email: email,
             }
         );
+
+        return data.data.signUpUser;
     }
 
     static isLoggedIn() {

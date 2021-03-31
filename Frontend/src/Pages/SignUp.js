@@ -1,30 +1,60 @@
 import { Button, CssBaseline, Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import brandLogo from "../Media/saturn.png";
-import User from "../apis/user"
+import User from "../apis/user";
 
 function SignUp() {
-    let [username, setUsername] = useState("");
-    let [password, setPassword] = useState("");
-    let [email, setEmail] = useState("");
-    let [fname, setfname] = useState("");
-    let [lname, setlname] = useState("");
+
+    let [formFields, setFormFields] = useState({
+        username: "",
+        password: "",
+        email: "",
+        fname: "",
+        lname: ""
+    })
+
+    let [isFormFilled, setIsFormFilled] = useState(false);
+
+    let history = useHistory();
 
 
+    let createFieldUpdate = (field) => (ev) => {
+        setFormFields({
+            ...formFields,
+            [field]: ev.target.value
+        })
+    }
 
-    let validEntries = () => {
-        return username.length > 0 && password.length > 0;
-    };
+    useEffect(() => {
 
+        let {fname, lname, username, password, email} = formFields;
+
+        let validations = [
+            username.length > 0,
+            password.length > 0,
+            fname.length > 0,
+            lname.length > 0,
+            email.length > 0,
+        ];
+
+        setIsFormFilled(
+            validations.reduce((acc, v) => acc + v) == validations.length
+        );
+
+    }, [formFields]);
 
     let signUp = async () => {
 
-        await User.signUp(fname, lname, username, password, email)
+        let {fname, lname, username, password, email} = formFields;
 
-    }
-
+        if (await User.signUp(fname, lname, username, password, email)) {
+            history.push("/dashboard");
+        } else {
+        }
+    };
 
     return (
         <Fragment>
@@ -54,7 +84,7 @@ function SignUp() {
                         <div
                             style={{ display: "flex", flexDirection: "column" }}
                         >
-                            <div style={{height: 30}}/>
+                            <div style={{ height: 30 }} />
                             <Grid container justify="center">
                                 <h1>Sign Up</h1>
                             </Grid>
@@ -67,7 +97,8 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="First Name"
-                                        onChange= {(ev) => {setfname(ev.target.value)}}
+                                        value={formFields.fname}
+                                        onChange={createFieldUpdate("fname")}
                                     />
                                 </Grid>
                                 <Grid item>
@@ -77,8 +108,8 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="Last Name"
-                                        onChange= {(ev) => {setlname(ev.target.value)}}
-
+                                        value={formFields.lname}
+                                        onChange={createFieldUpdate("lname")}
                                     />
                                 </Grid>
                             </Grid>
@@ -99,9 +130,9 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="Username"
-                                        value={username}
-                                        onChange={(e) =>
-                                            setUsername(e.target.value)
+                                        value={formFields.username}
+                                        onChange={
+                                            createFieldUpdate("username")
                                         }
                                     />
                                 </Grid>
@@ -112,9 +143,9 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="Password"
-                                        value={password}
-                                        onChange={(e) =>
-                                            setPassword(e.target.value)
+                                        value={formFields.password}
+                                        onChange={
+                                            createFieldUpdate("password")
                                         }
                                         type="Password"
                                     />
@@ -129,16 +160,23 @@ function SignUp() {
                                     <TextField
                                         id="input-with-icon-grid"
                                         label="Email"
-                                        onChange= {(ev) => {setEmail(ev.target.value)}}
-
+                                        value={formFields.email}
+                                        onChange={
+                                            createFieldUpdate("email")
+                                        }
                                     />
                                 </Grid>
                             </Grid>
 
                             <div style={{ height: 20 }} />
-                            <Button variant="contained" color="primary" onClick={()=>{
-                                if(validEntries()) signUp();
-                            }}>Sign up</Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                disabled={!isFormFilled}
+                                onClick={signUp}
+                            >
+                                Sign up
+                            </Button>
                         </div>
                     </Grid>
                 </Grid>
