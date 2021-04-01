@@ -5,25 +5,34 @@ import XTermBuffer from "../apis/xterm-buffer";
 
 const Terminal = () => {
 
-    let socket;
+
+    let [socket, setSocket] = useState(null);
     /**
-     * @type {XTermBuffer}
+     * @type {XTermBuffer} buffer
      */
-    let buffer;
+    let [buffer, setBuffer] = useState(null);
     const xtermRef = useRef(null);
 
     useEffect(() => {
-        socket = io("ws://localhost:8080/", { path: "/pty" });
+        if (!socket) return;        
         socket.on("response", (data) => {
             xtermRef.current.terminal.write(data);
         });
-        buffer = new XTermBuffer(xtermRef.current.terminal);
-
+        socket.on("disconnect", () => {
+            buffer.write("Lost Connection to Server")
+        })
         return () => {
             socket.close()
         }
+    }, [socket])
+
+    useEffect(() => {
+        setSocket(io("ws://localhost:8080/", { path: "/pty" }));
+        setBuffer(new XTermBuffer(xtermRef.current.terminal));
 
     }, []);
+
+
 
     /**
      *
@@ -33,6 +42,7 @@ const Terminal = () => {
         const code = data.charCodeAt(0);
         switch (code) {
             case 13:
+                console.log("command");
                 socket.emit("command", buffer.line + "\n");
                 buffer.newline();
                 break;

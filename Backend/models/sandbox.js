@@ -1,6 +1,6 @@
 const Docker = require("dockerode");
 const fs = require("fs");
-const uuid = require("uuid")
+const uuid = require("uuid");
 const stream = require("stream");
 const path = require("path");
 const Interrupts = require("../interrupts");
@@ -19,7 +19,7 @@ class Sandbox {
 
     /**
      * Runs the command
-     * @param {string} cmd 
+     * @param {string} cmd
      */
     async _run(cmd) {
         this.container = await this.dockerConnection.createContainer({
@@ -28,7 +28,7 @@ class Sandbox {
             Cmd: cmd,
             HostConfig: {
                 NetworkMode: "none",
-                Binds: [this.mountPath + ":/home/appuser/workdir"]
+                Binds: [this.mountPath + ":/home/appuser/workdir"],
             },
             OpenStdin: true,
             StdinOnce: false,
@@ -43,7 +43,18 @@ class Sandbox {
 
         await this.container.start();
     }
+    /**
+     * 
+     * @param {string} filename 
+     * @param {ArrayBufferView} filedata 
+     */
+    createMountFile(filename, filedata) {
+        fs.writeFileSync(path.join(this.mountPath, filename), filedata);
+    }
 
+    makeMountDir(dirname) {
+        fs.mkdirSync(path.join(this.mountPath, dirname));
+    }
 
     createMount() {
         this.mountPath = path.join(__dirname, uuid.v4());
@@ -51,7 +62,7 @@ class Sandbox {
 
         Interrupts.addOnExitJob(() => {
             this.destroy();
-        })
+        });
     }
 
     destroyHostMount() {
@@ -63,14 +74,13 @@ class Sandbox {
      * @returns {Promise<NodeJS.ReadWriteStream>}
      */
     async launchSHShell() {
-
         this.createMount();
 
         await this._run("/bin/sh");
 
         Interrupts.addOnExitJob(() => {
             this.destroy();
-        })
+        });
 
         return this.stream;
     }

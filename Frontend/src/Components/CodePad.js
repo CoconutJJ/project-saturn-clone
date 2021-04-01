@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import MonacoEditor from "react-monaco-editor";
-// Open WebSocket connection to ShareDB server
+
 import ReconnectingWebSocket from "reconnecting-websocket";
 import StringBinding from "sharedb-string-binding";
 import sharedb from "sharedb/lib/client";
 
 function CodePad({ projectID, documentID }) {
     let socket;
+    /**
+     * @type {sharedb.Connection}
+     */
     let connection;
     const uuid = document.cookie.toString();
     const [code, setCode] = useState("");
@@ -32,15 +35,20 @@ function CodePad({ projectID, documentID }) {
 
     function subscribeDoc() {
         if (!projectID || !documentID) return;
+
         let doc = connection.get(projectID.toString(), documentID.toString());
         doc.subscribe(function (err) {
             if (err) throw err;
+            
             setCode(doc.data.content);
+            
             doc.on("op", function (op, source) {
                 if (source === uuid) return;
                 setCode(doc.data.content);
             });
+            
             var binding = new StringBinding(textArea.current, doc, ["content"]);
+
             binding.setup();
         });
     }

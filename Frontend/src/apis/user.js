@@ -55,8 +55,8 @@ class User {
         let cookies = cookie_string.split(";")
 
         for (let c of cookies) {
-
-            if (c.split("=")[0] == "userdata") return true;
+            console.log(c)
+            if (c.split("=")[0].trim() == "userdata") return true;
 
         }
 

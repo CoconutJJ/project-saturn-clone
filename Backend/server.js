@@ -21,7 +21,6 @@ const Document = require("./models/document");
 
 const Sandbox = require('./models/sandbox');
 
-const Interrupts = require("./interrupts");
 const mysqlOptions = {
     db: {
         host: "localhost",
@@ -33,9 +32,9 @@ const mysqlOptions = {
     ops_table: 'shareDbOps', snapshots_table: 'shareDbSnapShots', debug: true
 };
 const mySQLDB = require('sharedb-mysql')(mysqlOptions);
-// console.log(mySQLDB)
-const shareDb = require('sharedb')({ db: mySQLDB })
-// console.log(shareDb)
+
+const shareDb = new ShareDB({ db: mySQLDB })
+
 function createDocInShareDb(projectID, documentID) {
     var connection = shareDb.connect();
     var doc = connection.get(projectID.toString(), documentID.toString());
@@ -45,7 +44,9 @@ function createDocInShareDb(projectID, documentID) {
             doc.create({ content: '' });
         }
     });
+
 }
+
 const root = {
     loginUser: async ({ username, password }, context) => {
         try {
@@ -66,7 +67,7 @@ const root = {
             context.req.session.username !== null
         );
     },
-    signUpUser: async ({ firstname, lastname, username, password, email }) => {
+    signUpUser: async ({ firstname, lastname, username, password, email }, context) => {
         try {
             if(await User.create(firstname, lastname, username, password, email)){
                 context.req.session.username = username;
@@ -75,6 +76,7 @@ const root = {
                 return false;
             }
         } catch (e) {
+            console.log(e);
             throw Error("Internal Server Error");
         }
     },
@@ -201,9 +203,24 @@ app.use("/ql", (req, res) =>
         context: { req, res },
     })(req, res)
 );
+const webServer = http.createServer(app);
 
-const { Server } = require("socket.io");
-const io = new Server(http, {path: "/pty"});
+const { Server } = require("socket.io")
+
+const io = new Server(null, {path: "/pty"});
+io.attach(webServer);
+
+const wss = new WebSocket.Server({ noServer: true });
+
+
+webServer.on("upgrade", (request, socket, head) => {
+    console.log(request, socket, head)
+    if (!request.url.startsWith("/pty")) {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit("connection", ws, request)
+        })
+    }
+})
 
 io.on("connection", async (socket) => {
     
@@ -218,28 +235,36 @@ io.on("connection", async (socket) => {
     })
 
     socket.on("command", (cmd) => {
+        console.log(cmd);
         stream.write(cmd);
+    })
+
+    socket.on("makedir", (dirname) => {
+        sb.makeMountDir(dirname);
+    })
+
+    socket.on("makefile", (filename) => {
+        sb.createMountFile(filename, "");
     })
 
     socket.on("disconnect", () => {
         sb.destroy();
+        socket.disconnect();
     })
 
 })
+
+wss.on('connection', function (ws) {
+    var stream = new WebSocketJSONStream(ws);
+    shareDb.listen(stream);
+});
 
 app.get("/:path?(*)", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-// Interrupts.init();
-const server = http.createServer(app);
 
-const wss = new WebSocket.Server({ server: server });
-wss.on('connection', function (ws) {
-    var stream = new WebSocketJSONStream(ws);
-    shareDb.listen(stream);
-});
-server.listen(8080);
+webServer.listen(8080);
 console.log("Server Running!");
 
 //Citation

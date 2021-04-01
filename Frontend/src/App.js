@@ -41,7 +41,7 @@ function App() {
     };
 
     let loggedIn = User.isLoggedIn();
-
+    console.log(loggedIn);
     return (
         <>
             <div className={classes.root}>
