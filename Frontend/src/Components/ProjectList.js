@@ -1,5 +1,5 @@
-import React,{useState,useEffect} from "react";
-import { Card, CardContent, Typography, Grid} from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, Typography, Grid } from "@material-ui/core";
 import Project from "../apis/project";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
@@ -21,7 +21,12 @@ function ProjectList() {
     };
 
     useEffect(() => {
-        updateProjectDisplay(projectDisplayType);
+        function callback() { updateProjectDisplay(projectDisplayType); }
+        callback();
+        document.addEventListener("onCreateProject", callback);
+        return () => {
+            document.removeEventListener("onCreateProject", callback);
+        }
     }, []);
     return (
         <Card>
@@ -45,7 +50,7 @@ function ProjectList() {
                 <Grid container>
                     {projectDisplayData &&
                         projectDisplayData.map(({ name, owner, env, id }) => {
-                            return(
+                            return (
                                 <ProjectCard
                                     key={id}
                                     name={name}

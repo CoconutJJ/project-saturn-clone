@@ -54,102 +54,135 @@ const root = {
                 context.req.session.username = username;
                 return true;
             } else {
-                return false;
+                context.res.status(401)
+                return Error("Invalid Credentials")
             }
         } catch (e) {
             console.error(e);
-            throw Error("Internal Server Error");
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     },
     loggedIn: ({ }, context) => {
-        return (
-            context.req.session.username !== undefined &&
-            context.req.session.username !== null
-        );
+        try {
+            return (
+                context.req.session.username !== undefined &&
+                context.req.session.username !== null
+            );
+        } catch (e) {
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal Server Error");
+        }
     },
     signUpUser: async ({ firstname, lastname, username, password, email }, context) => {
         try {
-            if(await User.create(firstname, lastname, username, password, email)){
+            if (await User.create(firstname, lastname, username, password, email)) {
                 context.req.session.username = username;
                 return true;
-            }else{
-                return false;
+            } else {
+                context.res.status(400)
+                return Error("Invalid Arguments")
             }
         } catch (e) {
             console.log(e);
-            throw Error("Internal Server Error");
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     },
-    createProject: async ({name,env}, context) => {
+    createProject: async ({ name, env }, context) => {
         try {
             if (context.req.loggedIn) {
                 return await Project.create(name, env, context.req.session.username);
             } else {
-                return false;
+                context.res.status(403)
+                return Error("Access Denied")
             }
         } catch (e) {
-            throw Error("Internal Server Error");
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     },
-    shareProject: async ({uname,projectID}, context) => {
+    shareProject: async ({ uname, projectID }, context) => {
         try {
-            if (context.req.loggedIn) {
-                return await Project.share(uname,projectID);
+            if (context.req.loggedIn && await Project.isOwner(context.req.session.username, projectID)) {
+                return await Project.share(uname, projectID);
             } else {
-                return false;
+                context.res.status(403);
+                return Error("Access Denied");
             }
         } catch (e) {
-            throw Error("Internal Server Error");
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     },
     createDocument: async ({ name, projectID }, context) => {
         try {
-            if (context.req.loggedIn) {
+            if (context.req.loggedIn &&
+                (await Project.isOwner(context.req.session.username, projectID) || await Project.isGuest(context.req.session.username, projectID))
+            ) {
                 let result = await Document.create(name, projectID);
                 if (result.isCreated) {
                     createDocInShareDb(projectID, result.documentID);
                 }
                 return true;
             } else {
-                return false;
+                context.res.status(403);
+                return Error("Access Denied");
             }
         } catch (e) {
-            throw Error("Internal Server Error");
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     },
     getProjectGuests: async ({ projectID }, context) => {
         try {
-            if (context.req.loggedIn) {
+            if (context.req.loggedIn &&
+                (await Project.isOwner(context.req.session.username, projectID) || await Project.isGuest(context.req.session.username, projectID))
+            ) {
                 return await Project.getGuests(projectID);
             } else {
-                return [];
+                context.res.status(403);
+                return Error("Access Denied");
             }
         } catch (e) {
-            throw Error("Internal Server Error");
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     },
     getProjects: async ({ relationship }, context) => {
         try {
             if (context.req.loggedIn) {
-               let data= await Project.get(relationship, context.req.session.username);
-                console.log(data);
+                let data = await Project.get(relationship, context.req.session.username);
                 return data;
             } else {
-                return [];
+                context.res.status(403);
+                return Error("Access Denied");
             }
         } catch (e) {
-            throw Error("Internal Server Error");
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     },
     getDocuments: async ({ projectID }, context) => {
         try {
-            if (context.req.loggedIn) {
+            if (context.req.loggedIn &&
+                (await Project.isOwner(context.req.session.username, projectID) || await Project.isGuest(context.req.session.username, projectID))
+            ) {
                 return await Document.get(projectID);
             } else {
-                return [];
+                context.res.status(403);
+                return Error("Access Denied");
             }
         } catch (e) {
-            throw Error("Internal Server Error");
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal Server Error");
         }
     }
 };
@@ -223,7 +256,7 @@ webServer.on("upgrade", (request, socket, head) => {
 })
 
 io.on("connection", async (socket) => {
-    
+
     console.log("new connection");
 
     let sb = new Sandbox("alpine-sandbox");

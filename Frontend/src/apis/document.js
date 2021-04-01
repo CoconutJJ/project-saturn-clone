@@ -29,6 +29,9 @@ class Document {
                 projectID
             }
         );
+        if(data.errors){
+            throw Error(data.errors[0].message);
+        }
         return data.data.getDocuments;
     }
 

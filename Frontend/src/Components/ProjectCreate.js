@@ -27,6 +27,7 @@ function ProjectCreate() {
     const createProject = async () => {
         if (await Project.createProject(newProjectName, newProjectEnv)) {
             setNewProjectName("");
+            document.dispatchEvent(new Event("onCreateProject"));
         } else {
             alert("Project creation failed!");
         }

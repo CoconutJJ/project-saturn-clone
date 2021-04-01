@@ -79,7 +79,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Project() {
     const { id: projectID } = useParams();
-
     const classes = useStyles();
 
     const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -93,11 +92,15 @@ export default function Project() {
     const [documentID, setDocumentID] = useState("");
 
     const reloadProject = async () => {
-        let documentData = await Document.get(parseInt(projectID));
-        setDocuments(documentData);
-        let guestData = await ProjectAPI.getGuests(parseInt(projectID));
-        console.log(guestData);
-        setGuests(guestData);
+        try{
+            let documentData = await Document.get(parseInt(projectID));
+            setDocuments(documentData);
+            let guestData = await ProjectAPI.getGuests(parseInt(projectID));
+            console.log(guestData);
+            setGuests(guestData);
+        }catch(e){
+            alert(e)
+        }
     };
     const [drawerState, setDrawerState] = useState("");
 
