@@ -44,9 +44,9 @@ class Sandbox {
         await this.container.start();
     }
     /**
-     * 
-     * @param {string} filename 
-     * @param {ArrayBufferView} filedata 
+     *
+     * @param {string} filename
+     * @param {ArrayBufferView} filedata
      */
     createMountFile(filename, filedata) {
         fs.writeFileSync(path.join(this.mountPath, filename), filedata);
@@ -66,7 +66,7 @@ class Sandbox {
     }
 
     destroyHostMount() {
-        fs.rmdirSync(this.mountPath);
+        fs.rmSync(this.mountPath, { recursive: true, force: true });
     }
 
     /**

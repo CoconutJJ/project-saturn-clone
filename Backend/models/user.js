@@ -31,7 +31,13 @@ class User {
 
         let [hashedPassword, salt] = User._hashPassword(password);
 
-        let [results, fields] = await User.db.query(
+        let [results, _] = await User.db.query("SELECT COUNT(*) as count FROM users WHERE username = ?", [username]);
+
+        if (parseInt(results[0].count) > 0) {
+            return false;
+        }
+
+        [results, _] = await User.db.query(
             "INSERT INTO users (fname, lname, uname, pword, salt, email) VALUES (?,?,?,?,?,?)",
             [firstname, lastname, username, hashedPassword, salt, email]);
         return results.affectedRows != 0;

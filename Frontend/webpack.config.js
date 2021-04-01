@@ -22,13 +22,10 @@ const config = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.png$/,
+                test: /\.(png|jpg)$/,
                 use: [
                     {
                         loader: "url-loader",
-                        options: {
-                            mimetype: "image/png",
-                        },
                     },
                 ],
             },

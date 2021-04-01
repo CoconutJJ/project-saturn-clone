@@ -38,8 +38,6 @@ const Terminal = () => {
         })
     }, []);
 
-
-
     /**
      *
      * @param {string} data
@@ -72,7 +70,7 @@ const Terminal = () => {
             default:
                 buffer.write(data);
                 break;
-        }
+         }
     };
     return <XTerm ref={xtermRef} onData={onData} />;
 };
