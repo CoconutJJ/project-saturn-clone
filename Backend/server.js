@@ -227,7 +227,7 @@ io.on("connection", async (socket) => {
 
 })
 
-app.get("/:path?", (req, res, next) => {
+app.get("/:path?(*)", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 

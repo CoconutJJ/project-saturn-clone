@@ -11,17 +11,23 @@ import {
     ListItemText,
     TextField,
     Button,
-    Grid
+    Grid,
 } from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
+
+/**
+    Apparently you can't import this using destructuring...
+*/
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
+
+import { useHistory, useParams } from "react-router-dom";
+
 import clsx from "clsx";
 import React, { useState, useEffect, Fragment } from "react";
 import CodePad from "./CodePad";
 import Terminal from "./Terminal";
-import { useParams } from "react-router-dom";
 import Document from '../apis/document';
 import ProjectAPI from '../apis/project';
 import ShareIcon from '@material-ui/icons/Share';
@@ -30,7 +36,7 @@ const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
     root: {
         display: "flex",
-        padding: "1%"
+        padding: "1%",
     },
     hide: {
         display: "none",
@@ -71,14 +77,20 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Project() {
     const { id: projectID } = useParams();
+
     const classes = useStyles();
-    const theme = useTheme();
+
+
     const [drawerOpen, setDrawerOpen] = React.useState(false);
+
     const [documents, setDocuments] = useState([]);
+
     const [guests, setGuests] = useState([]);
     const [newDocumentName, setNewDocumentName] = useState("");
     const [newGuestUsername, setNewGuestUsername] = useState("");
+
     const [documentID, setDocumentID] = useState("");
+
     const reloadProject = async () => {
         let documentData = await Document.get(parseInt(projectID));
         setDocuments(documentData);
@@ -114,21 +126,30 @@ export default function Project() {
                     </ListItem>
                     <ListItem>
                         <ListItemIcon></ListItemIcon>
-                        <Button disabled={!newDocumentName}
+                        <Button
+                            disabled={!newDocumentName}
                             onClick={() => {
-                                Document.createDocument(newDocumentName, parseInt(projectID))
+                                Document.createDocument(
+                                    newDocumentName,
+                                    parseInt(projectID)
+                                );
                                 reloadProject();
-                            }}>
+                            }}
+                        >
                             Create
-                            </Button>
+                        </Button>
                     </ListItem>
                 </List>
                 <Divider />
                 <List>
                     {documents.map(({ name, id }) => (
-                        <ListItem button key={name} onClick={() => {
-                            setDocumentID(id)
-                        }}>
+                        <ListItem
+                            button
+                            key={name}
+                            onClick={() => {
+                                setDocumentID(id);
+                            }}
+                        >
                             <ListItemIcon></ListItemIcon>
                             <ListItemText primary={name} />
                         </ListItem>
@@ -227,18 +248,18 @@ export default function Project() {
                 </List>
             </Drawer>
 
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-
-                <Grid container direction="column">
-                    <Grid item xs={6}>
-                        <CodePad projectID={projectID} documentID={documentID} />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Terminal />
-                    </Grid>
+            {/* <main className={classes.content}> */}
+            {/* <div className={classes.toolbar} /> */}
+            {/* <main> */}
+            <Grid container direction="column">
+                <Grid item xs={6}>
+                    <CodePad projectID={projectID} documentID={documentID} />
                 </Grid>
-            </main>
+                <Grid item xs={6}>
+                    <Terminal />
+                </Grid>
+            </Grid>
+            {/* </main> */}
         </div>
     );
 }
