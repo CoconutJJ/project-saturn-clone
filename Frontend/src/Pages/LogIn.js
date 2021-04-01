@@ -1,13 +1,16 @@
 import { Button, CssBaseline, Grid, Snackbar } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import brandLogo from "../Media/saturn.png";
 import User from "../apis/user"
+import * as Global from "../apis/reducer";
 function LogIn() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
+    
+    let {state, dispatch} = useContext(Global.default.GlobalContext);
 
     const history = useHistory();
 
@@ -20,7 +23,8 @@ function LogIn() {
         if (await User.login(username, password)) {
             history.push("/dashboard");
         } else {
-            alert("Login Failed")
+            console.log("hello");
+            dispatch({type: "DIALOG_PROMPT", dialogMessage: "Login Failed", dialogShown: true})
         }
 
     }
