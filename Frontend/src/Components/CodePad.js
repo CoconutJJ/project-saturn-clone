@@ -17,6 +17,14 @@ function CodePad({ projectID, documentID }) {
     const textArea = useRef(null);
 
     useEffect(() => {
+
+        window.addEventListener("resize", () => {
+            editor.layout();
+        })
+
+    }, [])
+
+    useEffect(() => {
         if (!editor) return;
         const cursorBefore = editor.getSelections();
         if (editor.getValue() !== code) editor.setValue(code);
@@ -34,19 +42,18 @@ function CodePad({ projectID, documentID }) {
     }, [projectID, documentID]);
 
     function subscribeDoc() {
-        if (!projectID || !documentID) return;
-
+    
         let doc = connection.get(projectID.toString(), documentID.toString());
         doc.subscribe(function (err) {
             if (err) throw err;
-            
+
             setCode(doc.data.content);
-            
+
             doc.on("op", function (op, source) {
                 if (source === uuid) return;
                 setCode(doc.data.content);
             });
-            
+
             var binding = new StringBinding(textArea.current, doc, ["content"]);
 
             binding.setup();
@@ -61,28 +68,27 @@ function CodePad({ projectID, documentID }) {
     function editorDidMount(editor_, monaco_) {
         setEditor(editor_);
         editor_.focus();
+        editor_.layout();
     }
 
     return (
         <div key={documentID}>
-            {projectID && documentID && (
-                <div>
-                    <MonacoEditor
-                        width="800"
-                        height="600"
-                        language="javascript"
-                        theme="vs-dark"
-                        onChange={onChange}
-                        editorDidMount={editorDidMount}
-                    />
-                    <textarea
-                        style={{
-                            display: "none",
-                        }}
-                        ref={textArea}
-                    />
-                </div>
-            )}
+            <div>
+                <MonacoEditor
+                    width="100%"
+                    height="45vh"
+                    language="javascript"
+                    theme="vs-dark"
+                    onChange={onChange}
+                    editorDidMount={editorDidMount}
+                />
+                <textarea
+                    style={{
+                        display: "none",
+                    }}
+                    ref={textArea}
+                />
+            </div>
         </div>
     );
 }

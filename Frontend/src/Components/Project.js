@@ -28,9 +28,9 @@ import clsx from "clsx";
 import React, { useState, useEffect, Fragment } from "react";
 import CodePad from "./CodePad";
 import Terminal from "./Terminal";
-import Document from '../apis/document';
-import ProjectAPI from '../apis/project';
-import ShareIcon from '@material-ui/icons/Share';
+import Document from "../apis/document";
+import ProjectAPI from "../apis/project";
+import ShareIcon from "@material-ui/icons/Share";
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -80,7 +80,6 @@ export default function Project() {
 
     const classes = useStyles();
 
-
     const [drawerOpen, setDrawerOpen] = React.useState(false);
 
     const [documents, setDocuments] = useState([]);
@@ -97,16 +96,16 @@ export default function Project() {
         let guestData = await ProjectAPI.getGuests(parseInt(projectID));
         console.log(guestData);
         setGuests(guestData);
-    }
+    };
     const [drawerState, setDrawerState] = useState("");
 
     const updateDrawer = (newState) => {
         setDrawerOpen(!(newState == drawerState && drawerOpen));
         setDrawerState(newState);
-    }
+    };
     useEffect(() => {
         reloadProject();
-    }, [])
+    }, []);
 
     const renderDrawerDocuments = () => {
         return (
@@ -157,10 +156,9 @@ export default function Project() {
                 </List>
             </Fragment>
         );
-    }
+    };
     const renderDrawerShare = () => {
         return (
-
             <Fragment>
                 <List>
                     <ListItem>
@@ -177,19 +175,24 @@ export default function Project() {
                     </ListItem>
                     <ListItem>
                         <ListItemIcon></ListItemIcon>
-                        <Button disabled={!newGuestUsername}
+                        <Button
+                            disabled={!newGuestUsername}
                             onClick={() => {
-                                ProjectAPI.shareProject(newGuestUsername, parseInt(projectID))
+                                ProjectAPI.shareProject(
+                                    newGuestUsername,
+                                    parseInt(projectID)
+                                );
                                 reloadProject();
-                            }}>
+                            }}
+                        >
                             Share
-                    </Button>
+                        </Button>
                     </ListItem>
                 </List>
                 <Divider />
                 <List>
                     {guests.map(({ uname }) => (
-                        <ListItem key={uname} >
+                        <ListItem key={uname}>
                             <ListItemIcon></ListItemIcon>
                             <ListItemText primary={uname} />
                         </ListItem>
@@ -197,11 +200,13 @@ export default function Project() {
                 </List>
             </Fragment>
         );
-    }
+    };
 
-    const drawerStateToRender = { "documents": renderDrawerDocuments, "share": renderDrawerShare, "": () => null }
-
-
+    const drawerStateToRender = {
+        documents: renderDrawerDocuments,
+        share: renderDrawerShare,
+        "": () => null,
+    };
 
     return (
         <div className={classes.root}>
@@ -224,8 +229,8 @@ export default function Project() {
                         {!drawerOpen ? (
                             <ChevronRightIcon />
                         ) : (
-                                <ChevronLeftIcon />
-                            )}
+                            <ChevronLeftIcon />
+                        )}
                     </IconButton>
                 </div>
                 <Divider />
@@ -251,13 +256,23 @@ export default function Project() {
             {/* <main className={classes.content}> */}
             {/* <div className={classes.toolbar} /> */}
             {/* <main> */}
-            <Grid container direction="column">
-                <Grid item xs={6}>
-                    <CodePad projectID={projectID} documentID={documentID} />
-                </Grid>
-                <Grid item xs={6}>
-                    <Terminal />
-                </Grid>
+            <Grid container>
+                {(projectID && documentID) ? (
+                    <>
+                        <Grid item xs={12} md={12} sm={12}>
+                            <CodePad
+                                projectID={projectID}
+                                documentID={documentID}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={12} sm={12}>
+                            <Terminal
+                                projectID={projectID}
+                                documentID={documentID}
+                            />
+                        </Grid>
+                    </>
+                ) : null}
             </Grid>
             {/* </main> */}
         </div>

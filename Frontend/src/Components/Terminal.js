@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { XTerm } from "xterm-for-react";
 import { io } from "socket.io-client";
 import XTermBuffer from "../apis/xterm-buffer";
-
+import { FitAddon } from 'xterm-addon-fit';
 const Terminal = () => {
 
 
@@ -29,7 +29,13 @@ const Terminal = () => {
     useEffect(() => {
         setSocket(io("ws://localhost:8080/", { path: "/pty" }));
         setBuffer(new XTermBuffer(xtermRef.current.terminal));
+        let fit = new FitAddon();
+        xtermRef.current.terminal.loadAddon(fit);
+        fit.fit();
 
+        window.addEventListener("resize", () => {
+            fit.fit();
+        })
     }, []);
 
 
