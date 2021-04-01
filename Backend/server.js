@@ -89,6 +89,17 @@ const root = {
             throw Error("Internal Server Error");
         }
     },
+    shareProject: async ({uname,projectID}, context) => {
+        try {
+            if (context.req.loggedIn) {
+                return await Project.share(uname,projectID);
+            } else {
+                return false;
+            }
+        } catch (e) {
+            throw Error("Internal Server Error");
+        }
+    },
     createDocument: async ({ name, projectID }, context) => {
         try {
             if (context.req.loggedIn) {
@@ -104,10 +115,23 @@ const root = {
             throw Error("Internal Server Error");
         }
     },
+    getProjectGuests: async ({ projectID }, context) => {
+        try {
+            if (context.req.loggedIn) {
+                return await Project.getGuests(projectID);
+            } else {
+                return [];
+            }
+        } catch (e) {
+            throw Error("Internal Server Error");
+        }
+    },
     getProjects: async ({ relationship }, context) => {
         try {
             if (context.req.loggedIn) {
-                return await Project.get(relationship, context.req.session.username);
+               let data= await Project.get(relationship, context.req.session.username);
+                console.log(data);
+                return data;
             } else {
                 return [];
             }

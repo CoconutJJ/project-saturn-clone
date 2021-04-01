@@ -18,11 +18,13 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import clsx from "clsx";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import CodePad from "./CodePad";
 import Terminal from "./Terminal";
 import { useParams } from "react-router-dom";
 import Document from '../apis/document';
+import ProjectAPI from '../apis/project';
+import ShareIcon from '@material-ui/icons/Share';
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -73,15 +75,110 @@ export default function Project() {
     const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [documents, setDocuments] = useState([]);
+    const [guests, setGuests] = useState([]);
     const [newDocumentName, setNewDocumentName] = useState("");
+    const [newGuestUsername, setNewGuestUsername] = useState("");
     const [documentID, setDocumentID] = useState("");
     const reloadProject = async () => {
-        let data = await Document.get(parseInt(projectID));
-        setDocuments(data);
+        let documentData = await Document.get(parseInt(projectID));
+        setDocuments(documentData);
+        let guestData = await ProjectAPI.getGuests(parseInt(projectID));
+        console.log(guestData);
+        setGuests(guestData);
+    }
+    const [drawerState, setDrawerState] = useState("");
+
+    const updateDrawer = (newState) => {
+        setDrawerOpen(!(newState == drawerState && drawerOpen));
+        setDrawerState(newState);
     }
     useEffect(() => {
         reloadProject();
     }, [])
+
+    const renderDrawerDocuments = () => {
+        return (
+            <Fragment>
+                <List>
+                    <ListItem>
+                        <ListItemIcon></ListItemIcon>
+                        <ListItemText>
+                            <TextField
+                                value={newDocumentName}
+                                label="Document name"
+                                onChange={(e) =>
+                                    setNewDocumentName(e.target.value)
+                                }
+                            />
+                        </ListItemText>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon></ListItemIcon>
+                        <Button disabled={!newDocumentName}
+                            onClick={() => {
+                                Document.createDocument(newDocumentName, parseInt(projectID))
+                                reloadProject();
+                            }}>
+                            Create
+                            </Button>
+                    </ListItem>
+                </List>
+                <Divider />
+                <List>
+                    {documents.map(({ name, id }) => (
+                        <ListItem button key={name} onClick={() => {
+                            setDocumentID(id)
+                        }}>
+                            <ListItemIcon></ListItemIcon>
+                            <ListItemText primary={name} />
+                        </ListItem>
+                    ))}
+                </List>
+            </Fragment>
+        );
+    }
+    const renderDrawerShare = () => {
+        return (
+
+            <Fragment>
+                <List>
+                    <ListItem>
+                        <ListItemIcon></ListItemIcon>
+                        <ListItemText>
+                            <TextField
+                                value={newGuestUsername}
+                                label="Guest username"
+                                onChange={(e) =>
+                                    setNewGuestUsername(e.target.value)
+                                }
+                            />
+                        </ListItemText>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon></ListItemIcon>
+                        <Button disabled={!newGuestUsername}
+                            onClick={() => {
+                                ProjectAPI.shareProject(newGuestUsername, parseInt(projectID))
+                                reloadProject();
+                            }}>
+                            Share
+                    </Button>
+                    </ListItem>
+                </List>
+                <Divider />
+                <List>
+                    {guests.map(({ uname }) => (
+                        <ListItem key={uname} >
+                            <ListItemIcon></ListItemIcon>
+                            <ListItemText primary={uname} />
+                        </ListItem>
+                    ))}
+                </List>
+            </Fragment>
+        );
+    }
+
+    const drawerStateToRender = { "documents": renderDrawerDocuments, "share": renderDrawerShare, "": () => null }
 
 
 
@@ -111,49 +208,20 @@ export default function Project() {
                     </IconButton>
                 </div>
                 <Divider />
-                <List>
-                    <ListItem>
-                        <ListItemIcon></ListItemIcon>
-                        <ListItemText>
-                            <TextField
-                                value={newDocumentName}
-                                label="New document name"
-                                onChange={(e) =>
-                                    setNewDocumentName(e.target.value)
-                                }
-                            />
-                        </ListItemText>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon></ListItemIcon>
-                        <Button disabled={!newDocumentName}
-                            onClick={() => {
-                                Document.createDocument(newDocumentName, parseInt(projectID))
-                                reloadProject();
-                            }}>
-                            Create
-                            </Button>
-                    </ListItem>
-                </List>
-                <Divider />
-                <List>
-                    {documents.map(({ name, id }) => (
-                        <ListItem button key={name} onClick={() => {
-                            setDocumentID(id)
-                        }}>
-                            <ListItemIcon></ListItemIcon>
-                            <ListItemText primary={name} />
-                        </ListItem>
-                    ))}
-                </List>
+                {drawerStateToRender[drawerState]()}
             </Drawer>
             <Drawer variant="permanent">
                 <div className={classes.toolbar} />
                 <Divider />
                 <List>
                     <ListItem>
-                        <ButtonBase onClick={() => setDrawerOpen((x) => !x)}>
+                        <ButtonBase onClick={() => updateDrawer("documents")}>
                             <InsertDriveFileIcon />
+                        </ButtonBase>
+                    </ListItem>
+                    <ListItem>
+                        <ButtonBase onClick={() => updateDrawer("share")}>
+                            <ShareIcon />
                         </ButtonBase>
                     </ListItem>
                 </List>
@@ -171,12 +239,6 @@ export default function Project() {
                     </Grid>
                 </Grid>
             </main>
-
-            {/* <main className={classes.content}>
-                <div className={classes.toolbar} />
-                <CodePad />
-                <Terminal/>
-            </main> */}
         </div>
     );
 }

@@ -18,6 +18,18 @@ class Project {
     }
 
     /**
+     *  Share a project with a user.
+     * @param {string} uname
+     * @param {int} projectID   //environment of the project
+     */
+    static async share(uname, projectID) {
+        let [results, fields] = await Project.db.query(
+            "INSERT INTO projectsToSharedUsers (uname,projectID) VALUES (?,?)",
+            [uname, projectID]);
+        return results.affectedRows != 0;
+    }
+
+    /**
      *  Get an array of projects with specific relationship to a user.
      * @param {string} relationship
      * @param {string} username  
@@ -28,8 +40,26 @@ class Project {
                 "SELECT * FROM projects WHERE owner = ?",
                 [username]);
             return results;
+        } else if (relationship == "shared") {
+            let [results, fields] = await Project.db.query(
+                `SELECT * FROM projectsToSharedUsers
+                LEFT JOIN projects
+                ON projectsToSharedUsers.projectID = projects.id
+                WHERE uname = ?`,
+                [username]);
+            return results;
         }
-        return[];
+        return [];
+    }
+    /**
+ *  Get an array of guests of a specific project
+ * @param {int} projectID
+ */
+    static async getGuests(projectID) {
+        let [results, fields] = await Project.db.query(
+            "SELECT * FROM projectsToSharedUsers WHERE projectID = ?",
+            [projectID]);
+        return results;
     }
 
 }

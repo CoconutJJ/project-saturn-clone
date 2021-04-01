@@ -18,6 +18,21 @@ class Project {
     }
 
     /**
+     * Create a new project
+     * @param {string} uname  //guest username
+     * @param {int} projectID //projectID
+     */
+    static async shareProject(uname, projectID) {
+        let data = await API.m(
+            `mutation($uname: String, $projectID: Int){ shareProject(uname: $uname, projectID: $projectID)}`,
+            {
+                uname, projectID
+            }
+        );
+        return data;
+    }
+
+    /**
      * Get an array of projects with specific relationship to a user
      * @param {string} relationship
     */
@@ -30,6 +45,22 @@ class Project {
         );
         return data.data.getProjects;
     }
+
+    /**
+ *  Get an array of guests of a specific project 
+ * * @param {int} projectID
+*/
+    static async getGuests(projectID) {
+        let data = await API.q(
+            `query($projectID: Int){ getProjectGuests(projectID: $projectID){uname}}`,
+            {
+                projectID
+            }
+        );
+        return data.data.getProjectGuests;
+    }
+
+
 
 }
 export default Project;

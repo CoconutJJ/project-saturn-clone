@@ -33,6 +33,11 @@ CREATE TABLE documents(
     `utime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP   -- Last Update Time
 );
 
+CREATE TABLE projectsToSharedUsers(
+    `uname` VARCHAR(255) NOT NULL,
+    `projectID` INT
+);
+
 CREATE TABLE shareDbOps(
   collection varchar(255) not null,
   doc_id varchar(255) not null,
@@ -52,3 +57,17 @@ CREATE TABLE shareDbSnapShots(
   _mtime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- last modified time
   PRIMARY KEY (collection, doc_id)
 );
+
+
+/*
+    Citation
+
+*****************************************
+  table schemas for tables shareDbSnapShots and shareDbOps
+    Title: structure.sql
+    Author: WinMinTun
+    Date: 2017-12-07
+    Availability: https://github.com/WinMinTun/sharedb-mysql/blob/master/structure.sql
+*****************************************
+
+*/
