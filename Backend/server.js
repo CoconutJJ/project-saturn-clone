@@ -11,15 +11,15 @@ const qlSchema = buildSchema(fs.readFileSync("api.gql").toString());
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 
-const http = require('http');
-const ShareDB = require('sharedb');
-const WebSocket = require('ws');
-const WebSocketJSONStream = require('@teamwork/websocket-json-stream');
+const http = require("http");
+const ShareDB = require("sharedb");
+const WebSocket = require("ws");
+const WebSocketJSONStream = require("@teamwork/websocket-json-stream");
 const User = require("./models/user");
 const Project = require("./models/project");
 const Document = require("./models/document");
 
-const Sandbox = require('./models/sandbox');
+const Sandbox = require("./models/sandbox");
 
 const mysqlOptions = {
     db: {
@@ -27,13 +27,15 @@ const mysqlOptions = {
         user: "root",
         password: "1234",
         database: "saturn",
-        connectionLimit: 5
+        connectionLimit: 5,
     },
-    ops_table: 'shareDbOps', snapshots_table: 'shareDbSnapShots', debug: true
+    ops_table: "shareDbOps",
+    snapshots_table: "shareDbSnapShots",
+    debug: true,
 };
-const mySQLDB = require('sharedb-mysql')(mysqlOptions);
+const mySQLDB = require("sharedb-mysql")(mysqlOptions);
 
-const shareDb = new ShareDB({ db: mySQLDB })
+const shareDb = new ShareDB({ db: mySQLDB });
 
 function createDocInShareDb(projectID, documentID) {
     var connection = shareDb.connect();
@@ -41,10 +43,9 @@ function createDocInShareDb(projectID, documentID) {
     doc.fetch(function (err) {
         if (err) throw err;
         if (doc.type === null) {
-            doc.create({ content: '' });
+            doc.create({ content: "" });
         }
     });
-
 }
 
 const root = {
@@ -61,18 +62,35 @@ const root = {
             throw Error("Internal Server Error");
         }
     },
-    loggedIn: ({ }, context) => {
+    logoutUser: async ({}, context) => {
+        context.req.session.destroy();
+        res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
+
+        return true;
+    },
+    loggedIn: ({}, context) => {
         return (
             context.req.session.username !== undefined &&
             context.req.session.username !== null
         );
     },
-    signUpUser: async ({ firstname, lastname, username, password, email }, context) => {
+    signUpUser: async (
+        { firstname, lastname, username, password, email },
+        context
+    ) => {
         try {
-            if(await User.create(firstname, lastname, username, password, email)){
+            if (
+                await User.create(
+                    firstname,
+                    lastname,
+                    username,
+                    password,
+                    email
+                )
+            ) {
                 context.req.session.username = username;
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (e) {
@@ -80,10 +98,14 @@ const root = {
             throw Error("Internal Server Error");
         }
     },
-    createProject: async ({name,env}, context) => {
+    createProject: async ({ name, env }, context) => {
         try {
             if (context.req.loggedIn) {
-                return await Project.create(name, env, context.req.session.username);
+                return await Project.create(
+                    name,
+                    env,
+                    context.req.session.username
+                );
             } else {
                 return false;
             }
@@ -91,10 +113,10 @@ const root = {
             throw Error("Internal Server Error");
         }
     },
-    shareProject: async ({uname,projectID}, context) => {
+    shareProject: async ({ uname, projectID }, context) => {
         try {
             if (context.req.loggedIn) {
-                return await Project.share(uname,projectID);
+                return await Project.share(uname, projectID);
             } else {
                 return false;
             }
@@ -131,7 +153,10 @@ const root = {
     getProjects: async ({ relationship }, context) => {
         try {
             if (context.req.loggedIn) {
-               let data= await Project.get(relationship, context.req.session.username);
+                let data = await Project.get(
+                    relationship,
+                    context.req.session.username
+                );
                 console.log(data);
                 return data;
             } else {
@@ -151,9 +176,8 @@ const root = {
         } catch (e) {
             throw Error("Internal Server Error");
         }
-    }
+    },
 };
-
 
 app.use(morgan("dev"));
 app.use(bodyParser.json());
@@ -205,25 +229,23 @@ app.use("/ql", (req, res) =>
 );
 const webServer = http.createServer(app);
 
-const { Server } = require("socket.io")
+const { Server } = require("socket.io");
 
-const io = new Server(null, {path: "/pty"});
+const io = new Server(null, { path: "/pty" });
 io.attach(webServer);
 
 const wss = new WebSocket.Server({ noServer: true });
 
-
 webServer.on("upgrade", (request, socket, head) => {
-    console.log(request, socket, head)
+    console.log(request, socket, head);
     if (!request.url.startsWith("/pty")) {
         wss.handleUpgrade(request, socket, head, (ws) => {
-            wss.emit("connection", ws, request)
-        })
+            wss.emit("connection", ws, request);
+        });
     }
-})
+});
 
 io.on("connection", async (socket) => {
-    
     console.log("new connection");
 
     let sb = new Sandbox("alpine-sandbox");
@@ -232,29 +254,28 @@ io.on("connection", async (socket) => {
 
     stream.on("data", (data) => {
         socket.emit("response", data.toString());
-    })
+    });
 
     socket.on("command", (cmd) => {
         console.log(cmd);
         stream.write(cmd);
-    })
+    });
 
     socket.on("makedir", (dirname) => {
         sb.makeMountDir(dirname);
-    })
+    });
 
     socket.on("makefile", (filename) => {
         sb.createMountFile(filename, "");
-    })
+    });
 
     socket.on("disconnect", () => {
         sb.destroy();
         socket.disconnect();
-    })
+    });
+});
 
-})
-
-wss.on('connection', function (ws) {
+wss.on("connection", function (ws) {
     var stream = new WebSocketJSONStream(ws);
     shareDb.listen(stream);
 });
@@ -263,7 +284,6 @@ app.get("/:path?(*)", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-
 webServer.listen(8080);
 console.log("Server Running!");
 
@@ -271,9 +291,9 @@ console.log("Server Running!");
 
 //createDocInShareDb() and wss configurations are modifications from the shareDB textarea example
 /***************************************************************************************
-*    Title: Collaborative Textarea with ShareDB
-*    Author: Alec Gibson
-*    Date: 202-04-20
-*    Availability: https://github.com/share/sharedb/tree/master/examples/textarea
-*
-***************************************************************************************/
+ *    Title: Collaborative Textarea with ShareDB
+ *    Author: Alec Gibson
+ *    Date: 202-04-20
+ *    Availability: https://github.com/share/sharedb/tree/master/examples/textarea
+ *
+ ***************************************************************************************/
