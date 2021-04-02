@@ -31,7 +31,7 @@ class User {
 
         let [hashedPassword, salt] = User._hashPassword(password);
 
-        let [results, _] = await User.db.query("SELECT COUNT(*) as count FROM users WHERE username = ?", [username]);
+        let [results, _] = await User.db.query("SELECT COUNT(*) as count FROM users WHERE uname = ?", [username]);
 
         if (parseInt(results[0].count) > 0) {
             return false;

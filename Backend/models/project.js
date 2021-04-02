@@ -52,9 +52,9 @@ class Project {
         return [];
     }
     /**
- *  Get an array of guests of a specific project
- * @param {int} projectID
- */
+     *  Get an array of guests of a specific project
+     * @param {int} projectID
+     */
     static async getGuests(projectID) {
         let [results, fields] = await Project.db.query(
             "SELECT * FROM projectsToSharedUsers WHERE projectID = ?",
@@ -62,6 +62,27 @@ class Project {
         return results;
     }
 
+    /**
+     *  Check if a user is an owner of a project
+     * @param {string} username  
+     * @param {int} projectID  
+     */
+    static async isOwner(username,projectID){
+        let result = await Project.get("owned",username);
+        let project = result.find((x)=>x.id == projectID);
+        return project != undefined;
+    }
+
+    /**
+     *  Check if a user is a guest of a project
+     * @param {string} username  
+     * @param {int} projectID  
+     */
+    static async isGuest(username,projectID){
+        let result = await Project.get("shared",username);
+        let project = result.find((x)=>x.id == projectID);
+        return project != undefined;
+    }
 }
 
 module.exports = Project;
