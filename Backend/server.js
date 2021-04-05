@@ -43,10 +43,10 @@ shareDbAccess(shareDb);
 const setShareDbAccess = (projectID) => {
     //Document & project access restrictions
     shareDb.allowCreate(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOnwerOrGuest(session.username, projectID)
+        return await Project.isOwnerOrGuest(session.username, projectID)
     })
     shareDb.allowUpdate(projectID.toString(), async (docId, oldDoc, newDoc, ops, session) => {
-        return await Project.isOnwerOrGuest(session.username, projectID)
+        return await Project.isOwnerOrGuest(session.username, projectID)
     });
     shareDb.allowUpdate(
         projectID.toString(),
