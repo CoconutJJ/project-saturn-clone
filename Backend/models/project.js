@@ -51,6 +51,17 @@ class Project {
         }
         return [];
     }
+
+    /**
+     *  Get an array of all project ids
+     */
+    static async getProjectIDs() {
+        let [results, fields] = await Project.db.query(
+            "SELECT id FROM projects",
+            []);
+        return results;
+    }
+
     /**
      *  Get an array of guests of a specific project
      * @param {int} projectID

@@ -32,13 +32,29 @@ const mysqlOptions = {
     },
     ops_table: "shareDbOps",
     snapshots_table: "shareDbSnapShots",
-    debug: true,
+    debug: false,
 };
 const mySQLDB = require("sharedb-mysql")(mysqlOptions);
 
 const shareDb = new ShareDB({ db: mySQLDB });
 
 shareDbAccess(shareDb)
+
+const setShareDbAccess = (projectID) => {
+    //Document & project access restrictions
+    shareDb.allowCreate(projectID.toString(), async (docId, doc, session) => {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    })
+    shareDb.allowUpdate(projectID.toString(), async (docId, oldDoc, newDoc, ops, session) => {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    });
+    shareDb.allowRead(projectID.toString(), async (docId, doc, session) => {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    })
+    shareDb.allowDelete(projectID.toString(), async (docId, doc, session) => {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    })
+}
 
 function createDocInShareDb(projectID, documentID) {
     var connection = shareDb.connect();
@@ -49,19 +65,7 @@ function createDocInShareDb(projectID, documentID) {
             doc.create({ content: "" });
         }
     });
-    //Document & project access restrictions
-    shareDb.allowCreate(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOnwerOrGuest(session.username, projectID)
-    })
-    shareDb.allowUpdate(projectID.toString(), async (docId, oldDoc, newDoc, ops, session)=> {
-        return await Project.isOnwerOrGuest(session.username, projectID)
-    });
-    shareDb.allowRead(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOnwerOrGuest(session.username, projectID)
-    })
-    shareDb.allowDelete(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOnwerOrGuest(session.username, projectID)
-    })
+    setShareDbAccess(projectID);
 }
 
 const root = {
@@ -80,13 +84,13 @@ const root = {
             return Error("Internal Server Error");
         }
     },
-    logoutUser: async ({}, context) => {
+    logoutUser: async ({ }, context) => {
         context.req.session.destroy();
         res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
 
         return true;
     },
-    loggedIn: ({}, context) => {
+    loggedIn: ({ }, context) => {
         try {
             return (
                 context.req.session.username !== undefined &&
@@ -165,7 +169,7 @@ const root = {
                 let result = await Document.create(name, projectID);
                 if (result.isCreated) {
                     createDocInShareDb(projectID, result.documentID);
-                }else{
+                } else {
                     context.res.status(result.error.status);
                     return result.error;
                 }
@@ -329,7 +333,6 @@ webServer.on("upgrade", (request, socket, head) => {
 
 wss.on('connection', function (ws, req) {
     sessionParser(req, {}, function () {
-        console.log(req.session)
         if (req.session.username) {
             var stream = new WebSocketJSONStream(ws);
             shareDb.listen(stream, req.session);
@@ -347,8 +350,12 @@ app.get("/:path?(*)", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-webServer.listen(8080);
-console.log("Server Running!");
+const serverInit = async()=>{
+    let projectIDs = await Project.getProjectIDs();
+    projectIDs.map(({id})=>setShareDbAccess(id));
+}
+
+serverInit().then(()=>webServer.listen(8080));
 
 //Citation
 
