@@ -18,8 +18,8 @@ const WebSocketJSONStream = require("@teamwork/websocket-json-stream");
 const User = require("./models/user");
 const Project = require("./models/project");
 const Document = require("./models/document");
-const shareDbAccess = require('sharedb-access')
-
+const shareDbAccess = require("sharedb-access");
+const sharedSession = require("express-socket.io-session");
 const Sandbox = require("./models/sandbox");
 
 const mysqlOptions = {
@@ -38,7 +38,7 @@ const mySQLDB = require("sharedb-mysql")(mysqlOptions);
 
 const shareDb = new ShareDB({ db: mySQLDB });
 
-shareDbAccess(shareDb)
+shareDbAccess(shareDb);
 
 const setShareDbAccess = (projectID) => {
     //Document & project access restrictions
@@ -48,12 +48,22 @@ const setShareDbAccess = (projectID) => {
     shareDb.allowUpdate(projectID.toString(), async (docId, oldDoc, newDoc, ops, session) => {
         return await Project.isOnwerOrGuest(session.username, projectID)
     });
+    shareDb.allowUpdate(
+        projectID.toString(),
+        async (docId, oldDoc, newDoc, ops, session) => {
+            console.log("update");
+            return await Project.isOwnerOrGuest(session.username, projectID);
+        }
+    );
     shareDb.allowRead(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOnwerOrGuest(session.username, projectID)
-    })
+        console.log("read");
+        return await Project.isOwnerOrGuest(session.username, projectID);
+    });
     shareDb.allowDelete(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOnwerOrGuest(session.username, projectID)
-    })
+        
+        console.log("delete");
+        return await Project.isOwnerOrGuest(session.username, projectID);
+    });
 }
 
 function createDocInShareDb(projectID, documentID) {
@@ -165,7 +175,13 @@ const root = {
     },
     createDocument: async ({ name, projectID }, context) => {
         try {
-            if (context.req.loggedIn && await Project.isOnwerOrGuest(context.req.session.username, projectID)) {
+            if (
+                context.req.loggedIn &&
+                (await Project.isOwnerOrGuest(
+                    context.req.session.username,
+                    projectID
+                ))
+            ) {
                 let result = await Document.create(name, projectID);
                 if (result.isCreated) {
                     createDocInShareDb(projectID, result.documentID);
@@ -186,7 +202,13 @@ const root = {
     },
     getProjectGuests: async ({ projectID }, context) => {
         try {
-            if (context.req.loggedIn && await Project.isOnwerOrGuest(context.req.session.username, projectID)) {
+            if (
+                context.req.loggedIn &&
+                (await Project.isOwnerOrGuest(
+                    context.req.session.username,
+                    projectID
+                ))
+            ) {
                 return await Project.getGuests(projectID);
             } else {
                 context.res.status(403);
@@ -218,7 +240,13 @@ const root = {
     },
     getDocuments: async ({ projectID }, context) => {
         try {
-            if (context.req.loggedIn && await Project.isOnwerOrGuest(context.req.session.username, projectID)) {
+            if (
+                context.req.loggedIn &&
+                (await Project.isOwnerOrGuest(
+                    context.req.session.username,
+                    projectID
+                ))
+            ) {
                 return await Document.get(projectID);
             } else {
                 context.res.status(403);
@@ -246,10 +274,8 @@ var sessionParser = session({
     resave: false,
     saveUninitialized: false,
     key: "saturn-sessid",
-})
-app.use(
-    sessionParser
-);
+});
+app.use(sessionParser);
 
 app.use((req, res, next) => {
     if (req.session.username == undefined || req.session.username == null) {
@@ -287,6 +313,13 @@ const { Server } = require("socket.io");
 
 const io = new Server(null, { path: "/pty" });
 io.attach(webServer);
+io.use(
+    sharedSession(session, {
+        secret: "this is top secret!",
+        resave: false,
+        saveUninitialized: false,
+    })
+);
 
 const wss = new WebSocket.Server({ noServer: true });
 
@@ -299,39 +332,55 @@ webServer.on("upgrade", (request, socket, head) => {
     }
 });
 
-// io.on("connection", async (socket) => {
+io.on("connection", async (socket) => {
+    console.log("new connection");
+    console.log(socket.request.session);
 
-//     console.log("new connection");
+    let sb = new Sandbox("alpine-sandbox");
 
-//     let sb = new Sandbox("alpine-sandbox");
 
-//     let stream = await sb.launchSHShell();
+    let stream = await sb.launchSHShell();
 
-//     stream.on("data", (data) => {
-//         socket.emit("response", data.toString());
-//     })
+    socket.handshake.session.mountPath = sb.mountPath;
 
-//     socket.on("command", (cmd) => {
-//         console.log(cmd);
-//         stream.write(cmd);
-//     })
+    socket.on("initialize", async (projectID) => {
+        if (await Project.isOwnerOrGuest(session.username, projectID)) {
+            let documents = await Document.get(projectID);
 
-//     socket.on("makedir", (dirname) => {
-//         sb.makeMountDir(dirname);
-//     })
+            for (let d of documents) {
+                let name = await Document.getName(d.id);
+                let data = await Document.getDocumentData(d.id);
+                sb.createMountFile(name, data);
+            }
+        } else {
+            socket.disconnect();
+        }
+    });
 
-//     socket.on("makefile", (filename) => {
-//         sb.createMountFile(filename, "");
-//     })
+    stream.on("data", (data) => {
+        socket.emit("response", data.toString());
+    });
 
-//     socket.on("disconnect", () => {
-//         sb.destroy();
-//         socket.disconnect();
-//     })
+    socket.on("command", (cmd) => {
+        stream.write(cmd);
+    });
 
-// })
+    socket.on("makedir", (dirname) => {
+        sb.makeMountDir(dirname);
+    });
 
-wss.on('connection', function (ws, req) {
+    socket.on("makefile", (filename) => {
+        sb.createMountFile(filename, "");
+    });
+
+    socket.on("disconnect", () => {
+        sb.destroy();
+        socket.handshake.session.mountPath = null;
+        socket.disconnect();
+    });
+});
+
+wss.on("connection", function (ws, req) {
     sessionParser(req, {}, function () {
         if (req.session.username) {
             var stream = new WebSocketJSONStream(ws);
@@ -340,9 +389,8 @@ wss.on('connection', function (ws, req) {
     });
 });
 
-shareDb.use('connect', (request, next) => {
-    if (request.req)
-        request.agent.connectSession = request.req
+shareDb.use("connect", (request, next) => {
+    if (request.req) request.agent.connectSession = request.req;
     next();
 });
 
@@ -361,18 +409,18 @@ serverInit().then(()=>webServer.listen(8080));
 
 //createDocInShareDb() and wss configurations are modifications from the shareDB textarea example
 /***************************************************************************************
-*    Title: Collaborative Textarea with ShareDB
-*    Author: Alec Gibson
-*    Date: 2020-04-20
-*    Availability: https://github.com/share/sharedb/tree/master/examples/textarea
-*
-***************************************************************************************/
+ *    Title: Collaborative Textarea with ShareDB
+ *    Author: Alec Gibson
+ *    Date: 2020-04-20
+ *    Availability: https://github.com/share/sharedb/tree/master/examples/textarea
+ *
+ ***************************************************************************************/
 
 //User access middleware usage inspired by issue
 /***************************************************************************************
-*    Title: How do I "setup" a session.
-*    Author: julienmachon
-*    Date: 2018-02-11
-*    Availability: https://github.com/dmapper/sharedb-access/issues/8
-*
-***************************************************************************************/
+ *    Title: How do I "setup" a session.
+ *    Author: julienmachon
+ *    Date: 2018-02-11
+ *    Availability: https://github.com/dmapper/sharedb-access/issues/8
+ *
+ ***************************************************************************************/

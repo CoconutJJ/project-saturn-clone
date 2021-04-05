@@ -100,7 +100,7 @@ class Project {
      * @param {string} username  
      * @param {int} projectID  
      */
-    static async isOnwerOrGuest(username, projectID) {
+    static async isOwnerOrGuest(username, projectID) {
         return await Project.isOwner(username, projectID) || await Project.isGuest(username, projectID);
     }
 }
