@@ -30,7 +30,6 @@ class Project {
             }
         );
         if(data.errors ){
-            console.log("gonna throw error");
             throw Error(data.errors[0].message);
         }
         return data;

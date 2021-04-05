@@ -165,6 +165,9 @@ const root = {
                 let result = await Document.create(name, projectID);
                 if (result.isCreated) {
                     createDocInShareDb(projectID, result.documentID);
+                }else{
+                    context.res.status(result.error.status);
+                    return result.error;
                 }
                 return true;
             } else {
@@ -284,7 +287,7 @@ io.attach(webServer);
 const wss = new WebSocket.Server({ noServer: true });
 
 webServer.on("upgrade", (request, socket, head) => {
-    console.log(request, socket, head);
+    // console.log(request, socket, head);
     if (!request.url.startsWith("/pty")) {
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request);
@@ -292,40 +295,41 @@ webServer.on("upgrade", (request, socket, head) => {
     }
 });
 
-io.on("connection", async (socket) => {
+// io.on("connection", async (socket) => {
 
-    console.log("new connection");
+//     console.log("new connection");
 
-    let sb = new Sandbox("alpine-sandbox");
+//     let sb = new Sandbox("alpine-sandbox");
 
-    let stream = await sb.launchSHShell();
+//     let stream = await sb.launchSHShell();
 
-    stream.on("data", (data) => {
-        socket.emit("response", data.toString());
-    })
+//     stream.on("data", (data) => {
+//         socket.emit("response", data.toString());
+//     })
 
-    socket.on("command", (cmd) => {
-        console.log(cmd);
-        stream.write(cmd);
-    })
+//     socket.on("command", (cmd) => {
+//         console.log(cmd);
+//         stream.write(cmd);
+//     })
 
-    socket.on("makedir", (dirname) => {
-        sb.makeMountDir(dirname);
-    })
+//     socket.on("makedir", (dirname) => {
+//         sb.makeMountDir(dirname);
+//     })
 
-    socket.on("makefile", (filename) => {
-        sb.createMountFile(filename, "");
-    })
+//     socket.on("makefile", (filename) => {
+//         sb.createMountFile(filename, "");
+//     })
 
-    socket.on("disconnect", () => {
-        sb.destroy();
-        socket.disconnect();
-    })
+//     socket.on("disconnect", () => {
+//         sb.destroy();
+//         socket.disconnect();
+//     })
 
-})
+// })
 
 wss.on('connection', function (ws, req) {
     sessionParser(req, {}, function () {
+        console.log(req.session)
         if (req.session.username) {
             var stream = new WebSocketJSONStream(ws);
             shareDb.listen(stream, req.session);

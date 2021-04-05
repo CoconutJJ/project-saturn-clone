@@ -14,6 +14,9 @@ class Document {
                 name, projectID
             }
         );
+        if(data.errors){
+            throw Error(data.errors[0].message);
+        }
         return data;
     }
 

@@ -10,10 +10,17 @@ class Document {
      * @param {int} projectID  //project id
      */
     static async create(name, projectID) {
-        let [results, fields] = await Document.db.query(
-            "INSERT INTO documents (name,projectID) VALUES (?,?)",
-            [name, projectID]);
-        return { isCreated : results.affectedRows != 0, documentID : results.insertId};
+        const output = {isCreated:false,documentID:undefined,error:undefined};
+        let [results] = await Document.db.query("SELECT COUNT(*) as count FROM documents WHERE name = ? AND projectID = ?", [name,projectID]);
+        if (parseInt(results[0].count) > 0) {
+            output.error = Error("A document with the same name already exists");
+            output.error.status = 400;
+        }else{
+            let [results, fields] = await Document.db.query( "INSERT INTO documents (name,projectID) VALUES (?,?)",[name, projectID]);
+            output.isCreated = results.affectedRows != 0;
+            output.documentID = results.insertId;
+        }
+        return output;
     }
     
     /**
