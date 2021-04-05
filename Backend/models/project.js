@@ -67,9 +67,9 @@ class Project {
      * @param {string} username  
      * @param {int} projectID  
      */
-    static async isOwner(username,projectID){
-        let result = await Project.get("owned",username);
-        let project = result.find((x)=>x.id == projectID);
+    static async isOwner(username, projectID) {
+        let result = await Project.get("owned", username);
+        let project = result.find((x) => x.id == projectID);
         return project != undefined;
     }
 
@@ -78,10 +78,19 @@ class Project {
      * @param {string} username  
      * @param {int} projectID  
      */
-    static async isGuest(username,projectID){
-        let result = await Project.get("shared",username);
-        let project = result.find((x)=>x.id == projectID);
+    static async isGuest(username, projectID) {
+        let result = await Project.get("shared", username);
+        let project = result.find((x) => x.id == projectID);
         return project != undefined;
+    }
+
+    /**
+     *  Check if a user is a guest OR owner of a project
+     * @param {string} username  
+     * @param {int} projectID  
+     */
+    static async isOnwerOrGuest(username, projectID) {
+        return await Project.isOwner(username, projectID) || await Project.isGuest(username, projectID);
     }
 }
 

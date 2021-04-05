@@ -18,6 +18,7 @@ const WebSocketJSONStream = require('@teamwork/websocket-json-stream');
 const User = require("./models/user");
 const Project = require("./models/project");
 const Document = require("./models/document");
+const shareDbAccess = require('sharedb-access')
 
 const Sandbox = require('./models/sandbox');
 
@@ -35,6 +36,8 @@ const mySQLDB = require('sharedb-mysql')(mysqlOptions);
 
 const shareDb = new ShareDB({ db: mySQLDB })
 
+shareDbAccess(shareDb)
+
 function createDocInShareDb(projectID, documentID) {
     var connection = shareDb.connect();
     var doc = connection.get(projectID.toString(), documentID.toString());
@@ -44,7 +47,19 @@ function createDocInShareDb(projectID, documentID) {
             doc.create({ content: '' });
         }
     });
-
+    //Document & project access restrictions
+    shareDb.allowCreate(projectID.toString(), async (docId, doc, session) => {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    })
+    shareDb.allowUpdate(projectID.toString(), async (docId, oldDoc, newDoc, ops, session)=> {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    });
+    shareDb.allowRead(projectID.toString(), async (docId, doc, session) => {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    })
+    shareDb.allowDelete(projectID.toString(), async (docId, doc, session) => {
+        return await Project.isOnwerOrGuest(session.username, projectID)
+    })
 }
 
 const root = {
@@ -85,7 +100,7 @@ const root = {
                 return Error("Invalid Arguments")
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
             context.res.status(500);
             return Error("Internal Server Error");
         }
@@ -120,9 +135,7 @@ const root = {
     },
     createDocument: async ({ name, projectID }, context) => {
         try {
-            if (context.req.loggedIn &&
-                (await Project.isOwner(context.req.session.username, projectID) || await Project.isGuest(context.req.session.username, projectID))
-            ) {
+            if (context.req.loggedIn && await Project.isOnwerOrGuest(context.req.session.username, projectID)) {
                 let result = await Document.create(name, projectID);
                 if (result.isCreated) {
                     createDocInShareDb(projectID, result.documentID);
@@ -140,9 +153,7 @@ const root = {
     },
     getProjectGuests: async ({ projectID }, context) => {
         try {
-            if (context.req.loggedIn &&
-                (await Project.isOwner(context.req.session.username, projectID) || await Project.isGuest(context.req.session.username, projectID))
-            ) {
+            if (context.req.loggedIn && await Project.isOnwerOrGuest(context.req.session.username, projectID)) {
                 return await Project.getGuests(projectID);
             } else {
                 context.res.status(403);
@@ -171,9 +182,7 @@ const root = {
     },
     getDocuments: async ({ projectID }, context) => {
         try {
-            if (context.req.loggedIn &&
-                (await Project.isOwner(context.req.session.username, projectID) || await Project.isGuest(context.req.session.username, projectID))
-            ) {
+            if (context.req.loggedIn && await Project.isOnwerOrGuest(context.req.session.username, projectID)) {
                 return await Document.get(projectID);
             } else {
                 context.res.status(403);
@@ -187,23 +196,23 @@ const root = {
     }
 };
 
-
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 
+var sessionParser = session({
+    store: new MySQLStore({
+        host: "localhost",
+        user: "root",
+        password: "1234",
+        database: "saturn",
+    }),
+    secret: "this is top secret!",
+    resave: false,
+    saveUninitialized: false,
+    key: "saturn-sessid",
+})
 app.use(
-    session({
-        store: new MySQLStore({
-            host: "localhost",
-            user: "root",
-            password: "1234",
-            database: "saturn",
-        }),
-        secret: "this is top secret!",
-        resave: false,
-        saveUninitialized: false,
-        key: "saturn-sessid",
-    })
+    sessionParser
 );
 
 app.use((req, res, next) => {
@@ -240,14 +249,13 @@ const webServer = http.createServer(app);
 
 const { Server } = require("socket.io")
 
-const io = new Server(null, {path: "/pty"});
+const io = new Server(null, { path: "/pty" });
 io.attach(webServer);
 
 const wss = new WebSocket.Server({ noServer: true });
 
 
 webServer.on("upgrade", (request, socket, head) => {
-    console.log(request, socket, head)
     if (!request.url.startsWith("/pty")) {
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request)
@@ -255,41 +263,51 @@ webServer.on("upgrade", (request, socket, head) => {
     }
 })
 
-io.on("connection", async (socket) => {
+// io.on("connection", async (socket) => {
 
-    console.log("new connection");
+//     console.log("new connection");
 
-    let sb = new Sandbox("alpine-sandbox");
+//     let sb = new Sandbox("alpine-sandbox");
 
-    let stream = await sb.launchSHShell();
+//     let stream = await sb.launchSHShell();
 
-    stream.on("data", (data) => {
-        socket.emit("response", data.toString());
-    })
+//     stream.on("data", (data) => {
+//         socket.emit("response", data.toString());
+//     })
 
-    socket.on("command", (cmd) => {
-        console.log(cmd);
-        stream.write(cmd);
-    })
+//     socket.on("command", (cmd) => {
+//         console.log(cmd);
+//         stream.write(cmd);
+//     })
 
-    socket.on("makedir", (dirname) => {
-        sb.makeMountDir(dirname);
-    })
+//     socket.on("makedir", (dirname) => {
+//         sb.makeMountDir(dirname);
+//     })
 
-    socket.on("makefile", (filename) => {
-        sb.createMountFile(filename, "");
-    })
+//     socket.on("makefile", (filename) => {
+//         sb.createMountFile(filename, "");
+//     })
 
-    socket.on("disconnect", () => {
-        sb.destroy();
-        socket.disconnect();
-    })
+//     socket.on("disconnect", () => {
+//         sb.destroy();
+//         socket.disconnect();
+//     })
 
-})
+// })
 
-wss.on('connection', function (ws) {
-    var stream = new WebSocketJSONStream(ws);
-    shareDb.listen(stream);
+wss.on('connection', function (ws, req) {
+    sessionParser(req, {}, function () {
+        if (req.session.username) {
+            var stream = new WebSocketJSONStream(ws);
+            shareDb.listen(stream, req.session);
+        }
+    });
+});
+
+shareDb.use('connect', (request, next) => {
+    if (request.req)
+        request.agent.connectSession = request.req
+    next();
 });
 
 app.get("/:path?(*)", (req, res, next) => {
@@ -306,7 +324,16 @@ console.log("Server Running!");
 /***************************************************************************************
 *    Title: Collaborative Textarea with ShareDB
 *    Author: Alec Gibson
-*    Date: 202-04-20
+*    Date: 2020-04-20
 *    Availability: https://github.com/share/sharedb/tree/master/examples/textarea
+*
+***************************************************************************************/
+
+//User access middleware usage inspired by issue
+/***************************************************************************************
+*    Title: How do I "setup" a session.
+*    Author: julienmachon
+*    Date: 2018-02-11
+*    Availability: https://github.com/dmapper/sharedb-access/issues/8
 *
 ***************************************************************************************/
