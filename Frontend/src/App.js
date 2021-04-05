@@ -27,7 +27,6 @@ import SignUp from "./Pages/SignUp";
 import Dashboard from "./Pages/Dashboard";
 import Project from "./Components/Project";
 import User from "./apis/user";
-import * as Global from "./apis/reducer";
 import "./Styles/main.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -43,8 +42,6 @@ function App() {
     const classes = useStyles();
     const history = useHistory();
 
-    let { state, dispatch } = useContext(Global.default.GlobalContext);
-    console.log("app", state);
     let toLoginPage = () => {
         history.push("/login");
     };
@@ -53,112 +50,102 @@ function App() {
         history.push("/signup");
     };
 
-    let handleAlertClose = () => {
-        dispatch({ dialogShown: false, dialogMessage: "", type: "DIALOG_PROMPT" });
-    };
+    let toDashboardPage = () => {
+        history.push("/dashboard");
+    }
+
+    let logout = async () => {
+        await User.logout();
+        window.location.href="/";
+    }
 
     let loggedIn = User.isLoggedIn();
 
     return (
         <>
-            <Global.default.GlobalStateProvider>
-                <div className={classes.root}>
-                    <Grid container>
-                        <Grid item sm={12}>
-                            <AppBar
-                                position="relative"
-                                style={{
-                                    backgroundColor: "black",
-                                    zIndex: 1400,
-                                }}
-                            >
-                                <Toolbar>
-                                    <Typography
-                                        variant="h6"
-                                        className={classes.title}
-                                    >
-                                        SATURN
-                                    </Typography>
-                                    {!loggedIn ? (
-                                        <>
-                                            <Button
-                                                color="inherit"
-                                                onClick={toLoginPage}
-                                            >
-                                                Login
-                                            </Button>
-                                            <Button
-                                                color="inherit"
-                                                onClick={toSignUpPage}
-                                            >
-                                                Sign Up
-                                            </Button>
-                                        </>
-                                    ) : null}
-                                </Toolbar>
-                            </AppBar>
-                        </Grid>
-                        <Grid sm={12} item>
-                            <Dialog
-                                open={state.dialogShown}
-                                onClose={handleAlertClose}
-                                aria-labelledby="alert-dialog-title"
-                                aria-describedby="alert-dialog-description"
-                            >
-                                <DialogTitle id="alert-dialog-title">
-                                    {"Alert"}
-                                </DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText id="alert-dialog-description">
-                                        {state.dialogMessage}
-                                    </DialogContentText>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button
-                                        onClick={handleAlertClose}
-                                        color="primary"
-                                        autoFocus
-                                    >
-                                        Okay
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
-                            <Switch>
-                                <Route path="/" exact={true}>
-                                    <Home />
-                                </Route>
-                                <Route path="/login" exact={true}>
-                                    <LogIn />
-                                </Route>
-                                <Route path="/signup" exact={true}>
-                                    <SignUp />
-                                </Route>
-                                <Route path="/dashboard" exact={true}>
-                                    {loggedIn ? (
-                                        <Dashboard />
-                                    ) : (
-                                        <Redirect to="/" />
-                                    )}
-                                </Route>
-                                <Route path="/projects/:id">
-                                    {loggedIn ? (
-                                        <Project />
-                                    ) : (
-                                        <Redirect to="/" />
-                                    )}
-                                </Route>
-                                <Route path="/projects" exact={true}>
-                                    {loggedIn ? (
-                                        <Project />
-                                    ) : (
-                                        <Redirect to="/" />
-                                    )}
-                                </Route>
-                            </Switch>
-                        </Grid>
+            <div className={classes.root}>
+                <Grid container>
+                    <Grid item sm={12}>
+                        <AppBar
+                            position="relative"
+                            style={{
+                                backgroundColor: "black",
+                                zIndex: 1400,
+                            }}
+                        >
+                            <Toolbar>
+                                <Typography
+                                    variant="h6"
+                                    className={classes.title}
+                                >
+                                    SATURN
+                                </Typography>
+                                {!loggedIn ? (
+                                    <>
+                                        <Button
+                                            color="inherit"
+                                            onClick={toLoginPage}
+                                        >
+                                            Login
+                                        </Button>
+                                        <Button
+                                            color="inherit"
+                                            onClick={toSignUpPage}
+                                        >
+                                            Sign Up
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            color="inherit"
+                                            onClick={toDashboardPage}
+                                        >
+                                            Dashboard
+                                        </Button>
+                                        <Button
+                                            color="inherit"
+                                            onClick={logout}
+                                        >
+                                            Log Out
+                                        </Button>
+                                    </>
+                                )}
+                            </Toolbar>
+                        </AppBar>
                     </Grid>
-                </div>
-            </Global.default.GlobalStateProvider>
+                    <Grid sm={12} item>
+                        <Switch>
+                            <Route path="/" exact={true}>
+                                <Home />
+                            </Route>
+                            <Route path="/login" exact={true}>
+                                {!loggedIn ? (
+                                    <LogIn />
+                                ) : (
+                                    <Redirect to="/dashboard" />
+                                )}
+                            </Route>
+                            <Route path="/signup" exact={true}>
+                                {!loggedIn ? (
+                                    <SignUp />
+                                ) : (
+                                    <Redirect to="/dashboard" />
+                                )}
+                            </Route>
+                            <Route path="/dashboard" exact={true}>
+                                {loggedIn ? <Dashboard /> : <Redirect to="/" />}
+                            </Route>
+                            <Route path="/projects/:id">
+                                {loggedIn ? <Project /> : <Redirect to="/" />}
+                            </Route>
+                            <Route path="/projects" exact={true}>
+                                {loggedIn ? <Project /> : <Redirect to="/" />}
+                            </Route>
+                        </Switch>
+                    </Grid>
+                </Grid>
+            </div>
         </>
     );
 }

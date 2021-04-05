@@ -1,16 +1,16 @@
 import { Button, CssBaseline, Grid, Snackbar } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
-import React, { Fragment, useContext, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { useHistory } from "react-router-dom";
 import brandLogo from "../Media/saturn.png";
 import User from "../apis/user"
-import * as Global from "../apis/reducer";
+
 function LogIn() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
     
-    let {state, dispatch} = useContext(Global.default.GlobalContext);
+    let [isError, setError] = useState(false);
 
     const history = useHistory();
 
@@ -21,10 +21,9 @@ function LogIn() {
     let login = async () => {
 
         if (await User.login(username, password)) {
-            history.push("/dashboard");
+            window.location.href="/dashboard";
         } else {
-            console.log("hello");
-            dispatch({type: "DIALOG_PROMPT", dialogMessage: "Login Failed", dialogShown: true})
+            setError(true);
         }
 
     }
@@ -63,56 +62,37 @@ function LogIn() {
                             }}
                         >
                             <Grid container justify="center">
-                                {/* <img src={brandLogo} width={200} alt="brand logo" /> */}
-
                                 <h1>Log In</h1>
                             </Grid>
-                            {/* <TextField label="Username" margin="normal" id="standard-basic"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <AccountCircle />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                        <TextField label="Password" margin="normal" id="standard-basic"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LockRounded />
-                                    </InputAdornment>
-                                ),
-                            }} /> */}
                             <div style={{ height: 20 }} />
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
-                                    <AccountCircle />
-                                </Grid>
-                                <Grid item>
                                     <TextField
+                                        error={isError}
                                         id="input-with-icon-grid"
                                         label="Username"
                                         value={username}
                                         onChange={(e) =>
                                             setUsername(e.target.value)
                                         }
+                                        helperText = {isError ? "Incorrect Username" : null}
+                                        variant="outlined"
                                     />
                                 </Grid>
                             </Grid>
                             <div style={{ height: 20 }} />
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
-                                    <LockRounded />
-                                </Grid>
-                                <Grid item>
                                     <TextField
+                                        error={isError}
                                         id="input-with-icon-grid"
                                         label="Password"
                                         value={password}
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
+                                        helperText = {isError ? "Incorrect Password" : null}
+                                        variant="outlined"
                                         type="Password"
                                     />
                                 </Grid>
