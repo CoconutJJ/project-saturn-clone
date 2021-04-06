@@ -20,6 +20,7 @@ import { makeStyles } from "@material-ui/core/styles";
 */
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import VideocamIcon from '@material-ui/icons/Videocam';
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 
 import { useHistory, useParams } from "react-router-dom";
@@ -28,11 +29,11 @@ import clsx from "clsx";
 import React, { useState, useEffect, Fragment } from "react";
 import CodePad from "./CodePad";
 import Terminal from "./Terminal";
-import Document from "../apis/document";
-import ProjectAPI from "../apis/project";
-import ShareIcon from "@material-ui/icons/Share";
+import Document from '../apis/document';
+import ProjectAPI from '../apis/project';
+import ShareIcon from '@material-ui/icons/Share';
 import SaturnCat from "../Media/saturn-cat.jpg";
-
+import Room from "./Room";
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -210,6 +211,8 @@ export default function Project() {
         "": () => null,
     };
 
+    const [startVideo, setStartVideo] = React.useState(false);
+
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -246,6 +249,12 @@ export default function Project() {
                         <ButtonBase onClick={() => updateDrawer("documents")}>
                             <InsertDriveFileIcon />
                         </ButtonBase>
+                        
+                    </ListItem>
+                    <ListItem>
+                        <ButtonBase onClick={() => setStartVideo((x) => !x)}>
+                            <VideocamIcon />
+                        </ButtonBase>
                     </ListItem>
                     <ListItem>
                         <ButtonBase onClick={() => updateDrawer("share")}>
@@ -268,6 +277,12 @@ export default function Project() {
                             <Terminal
                                 projectID={projectID}
                                 documentID={documentID}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={12} sm={12}>
+                            <Room
+                                id={projectID}
+                                videoflag={startVideo}
                             />
                         </Grid>
                     </>
