@@ -3,14 +3,12 @@ const path = require("path");
 const morgan = require("morgan");
 const fs = require("fs");
 const app = express();
-
 const { graphqlHTTP } = require("express-graphql");
 const { buildSchema } = require("graphql");
 const bodyParser = require("body-parser");
 const qlSchema = buildSchema(fs.readFileSync("api.gql").toString());
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
-
 const http = require("http");
 const ShareDB = require("sharedb");
 const WebSocket = require("ws");
@@ -19,7 +17,6 @@ const User = require("./models/user");
 const Project = require("./models/project");
 const Document = require("./models/document");
 const shareDbAccess = require("sharedb-access");
-const sharedSession = require("express-socket.io-session");
 const Sandbox = require("./models/sandbox");
 
 const mysqlOptions = {
@@ -314,13 +311,6 @@ const { Server } = require("socket.io");
 const io = new Server(null, { path: "/pty" });
 
 io.attach(webServer);
-// io.use(
-//     sharedSession(session, {
-//         secret: "this is top secret!",
-//         resave: false,
-//         saveUninitialized: false,
-//     })
-// );
 
 webServer.on("upgrade", (request, socket, head) => {
     // console.log(request, socket, head);
