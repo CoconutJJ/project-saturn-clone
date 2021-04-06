@@ -17,12 +17,12 @@ function CodePad({ projectID, documentID }) {
     const textArea = useRef(null);
 
     useEffect(() => {
-
+        if (!editor) return;
         window.addEventListener("resize", () => {
             editor.layout();
         })
 
-    }, [])
+    }, [editor])
 
     useEffect(() => {
         if (!editor) return;

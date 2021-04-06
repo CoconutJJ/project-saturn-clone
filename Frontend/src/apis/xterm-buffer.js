@@ -59,6 +59,10 @@ class XTermBuffer {
         this.term.write("\r\n");
     }
 
+    set(char) {
+        this.term.write(char);
+    }
+
     write(char) {
         let head = this.line.substr(0, this.cursor);
         let tail = this.line.substr(this.cursor);

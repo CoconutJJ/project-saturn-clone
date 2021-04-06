@@ -64,7 +64,7 @@ class Document {
 
         if (results.length == 0) return null;
 
-        return results[0].data;
+        return JSON.parse(results[0].data)["content"]
     }
 
     /**

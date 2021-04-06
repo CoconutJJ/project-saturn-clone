@@ -43,11 +43,14 @@ shareDbAccess(shareDb);
 const setShareDbAccess = (projectID) => {
     //Document & project access restrictions
     shareDb.allowCreate(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOwnerOrGuest(session.username, projectID)
-    })
-    shareDb.allowUpdate(projectID.toString(), async (docId, oldDoc, newDoc, ops, session) => {
-        return await Project.isOwnerOrGuest(session.username, projectID)
+        return await Project.isOwnerOrGuest(session.username, projectID);
     });
+    shareDb.allowUpdate(
+        projectID.toString(),
+        async (docId, oldDoc, newDoc, ops, session) => {
+            return await Project.isOwnerOrGuest(session.username, projectID);
+        }
+    );
     shareDb.allowUpdate(
         projectID.toString(),
         async (docId, oldDoc, newDoc, ops, session) => {
@@ -60,11 +63,10 @@ const setShareDbAccess = (projectID) => {
         return await Project.isOwnerOrGuest(session.username, projectID);
     });
     shareDb.allowDelete(projectID.toString(), async (docId, doc, session) => {
-        
         console.log("delete");
         return await Project.isOwnerOrGuest(session.username, projectID);
     });
-}
+};
 
 function createDocInShareDb(projectID, documentID) {
     var connection = shareDb.connect();
@@ -94,13 +96,13 @@ const root = {
             return Error("Internal Server Error");
         }
     },
-    logoutUser: async ({ }, context) => {
+    logoutUser: async ({}, context) => {
         context.req.session.destroy();
         res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
 
         return true;
     },
-    loggedIn: ({ }, context) => {
+    loggedIn: ({}, context) => {
         try {
             return (
                 context.req.session.username !== undefined &&
@@ -308,23 +310,22 @@ app.use("/ql", (req, res) =>
     })(req, res)
 );
 const webServer = http.createServer(app);
-
 const { Server } = require("socket.io");
-
 const io = new Server(null, { path: "/pty" });
-io.attach(webServer);
-io.use(
-    sharedSession(session, {
-        secret: "this is top secret!",
-        resave: false,
-        saveUninitialized: false,
-    })
-);
 
-const wss = new WebSocket.Server({ noServer: true });
+io.attach(webServer);
+// io.use(
+//     sharedSession(session, {
+//         secret: "this is top secret!",
+//         resave: false,
+//         saveUninitialized: false,
+//     })
+// );
 
 webServer.on("upgrade", (request, socket, head) => {
     // console.log(request, socket, head);
+    console.log("upgrade", request.url);
+
     if (!request.url.startsWith("/pty")) {
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request);
@@ -332,52 +333,58 @@ webServer.on("upgrade", (request, socket, head) => {
     }
 });
 
+const wss = new WebSocket.Server({ noServer: true });
+
 io.on("connection", async (socket) => {
     console.log("new connection");
-    console.log(socket.request.session);
 
     let sb = new Sandbox("alpine-sandbox");
 
-
     let stream = await sb.launchSHShell();
 
-    socket.handshake.session.mountPath = sb.mountPath;
 
-    socket.on("initialize", async (projectID) => {
-        if (await Project.isOwnerOrGuest(session.username, projectID)) {
-            let documents = await Document.get(projectID);
+    sessionParser(
+        socket.request,
+        () => {},
+        () => {
+            let session = socket.request.session;
 
-            for (let d of documents) {
-                let name = await Document.getName(d.id);
-                let data = await Document.getDocumentData(d.id);
-                sb.createMountFile(name, data);
-            }
-        } else {
-            socket.disconnect();
+            socket.on("setfs", async (projectID) => {
+                if (await Project.isOwnerOrGuest(session.username, projectID)) {
+                    let documents = await Document.get(projectID);
+                    for (let d of documents) {
+                        let name = await Document.getName(d.id);
+                        let data = await Document.getDocumentData(d.id);
+                        sb.createMountFile(name, data);
+                    }
+                } else {
+                    socket.disconnect();
+                }
+
+            });
+
+            stream.on("data", (data) => {
+                socket.emit("response", data.toString());
+            });
+
+            socket.on("command", (cmd) => {
+                stream.write(cmd);
+            });
+
+            socket.on("makedir", (dirname) => {
+                sb.makeMountDir(dirname);
+            });
+
+            socket.on("makefile", (filename) => {
+                sb.createMountFile(filename, "");
+            });
+
+            socket.on("disconnect", () => {
+                sb.destroy();
+                socket.disconnect();
+            });
         }
-    });
-
-    stream.on("data", (data) => {
-        socket.emit("response", data.toString());
-    });
-
-    socket.on("command", (cmd) => {
-        stream.write(cmd);
-    });
-
-    socket.on("makedir", (dirname) => {
-        sb.makeMountDir(dirname);
-    });
-
-    socket.on("makefile", (filename) => {
-        sb.createMountFile(filename, "");
-    });
-
-    socket.on("disconnect", () => {
-        sb.destroy();
-        socket.handshake.session.mountPath = null;
-        socket.disconnect();
-    });
+    );
 });
 
 wss.on("connection", function (ws, req) {
@@ -398,12 +405,12 @@ app.get("/:path?(*)", (req, res, next) => {
     res.sendFile(path.join(__dirname, "../Frontend/dist/index.html"));
 });
 
-const serverInit = async()=>{
+const serverInit = async () => {
     let projectIDs = await Project.getProjectIDs();
-    projectIDs.map(({id})=>setShareDbAccess(id));
-}
+    projectIDs.map(({ id }) => setShareDbAccess(id));
+};
 
-serverInit().then(()=>webServer.listen(8080));
+serverInit().then(() => webServer.listen(8080));
 
 //Citation
 
