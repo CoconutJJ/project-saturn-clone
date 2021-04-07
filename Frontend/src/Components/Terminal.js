@@ -3,7 +3,7 @@ import { XTerm } from "xterm-for-react";
 import { io } from "socket.io-client";
 import XTermBuffer from "../apis/xterm-buffer";
 import { FitAddon } from 'xterm-addon-fit';
-const Terminal = () => {
+const Terminal = ({projectID, documentID}) => {
 
 
     let [socket, setSocket] = useState(null);
@@ -24,7 +24,7 @@ const Terminal = () => {
         return () => {
             socket.close()
         }
-    }, [socket])
+    }, [socket]);
 
     useEffect(() => {
         setSocket(io("ws://localhost:8080/", { path: "/pty" }));

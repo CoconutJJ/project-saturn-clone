@@ -80,7 +80,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Project() {
     const { id: projectID } = useParams();
-
     const classes = useStyles();
 
     const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -94,11 +93,15 @@ export default function Project() {
     const [documentID, setDocumentID] = useState("");
 
     const reloadProject = async () => {
-        let documentData = await Document.get(parseInt(projectID));
-        setDocuments(documentData);
-        let guestData = await ProjectAPI.getGuests(parseInt(projectID));
-        console.log(guestData);
-        setGuests(guestData);
+        try {
+            let documentData = await Document.get(parseInt(projectID));
+            setDocuments(documentData);
+            let guestData = await ProjectAPI.getGuests(parseInt(projectID));
+            console.log(guestData);
+            setGuests(guestData);
+        } catch (e) {
+            alert(e)
+        }
     };
     const [drawerState, setDrawerState] = useState("");
 
@@ -130,12 +133,17 @@ export default function Project() {
                         <ListItemIcon></ListItemIcon>
                         <Button
                             disabled={!newDocumentName}
-                            onClick={() => {
-                                Document.createDocument(
-                                    newDocumentName,
-                                    parseInt(projectID)
-                                );
-                                reloadProject();
+                            onClick={async () => {
+                                try {
+
+                                    await Document.createDocument(
+                                        newDocumentName,
+                                        parseInt(projectID)
+                                    );
+                                    reloadProject();
+                                } catch (e) {
+                                    alert(e);
+                                }
                             }}
                         >
                             Create
@@ -180,12 +188,17 @@ export default function Project() {
                         <ListItemIcon></ListItemIcon>
                         <Button
                             disabled={!newGuestUsername}
-                            onClick={() => {
-                                ProjectAPI.shareProject(
-                                    newGuestUsername,
-                                    parseInt(projectID)
-                                );
-                                reloadProject();
+                            onClick={async() => {
+                                try{
+                                    
+                                    await ProjectAPI.shareProject(
+                                        newGuestUsername,
+                                        parseInt(projectID)
+                                    );
+                                    reloadProject();
+                                } catch(e){
+                                    alert(e);
+                                }
                             }}
                         >
                             Share
@@ -234,8 +247,8 @@ export default function Project() {
                         {!drawerOpen ? (
                             <ChevronRightIcon />
                         ) : (
-                            <ChevronLeftIcon />
-                        )}
+                                <ChevronLeftIcon />
+                            )}
                     </IconButton>
                 </div>
                 <Divider />
@@ -287,16 +300,16 @@ export default function Project() {
                         </Grid>
                     </>
                 ) : (
-                    <>
-                        <div style={{margin: "auto"}}>
-                            <Typography variant="h3">
-                                No Projects Open
+                        <>
+                            <div style={{ margin: "auto" }}>
+                                <Typography variant="h3">
+                                    No Projects Open
                             </Typography>
-                            <img src={SaturnCat} width="400" style={{margin: "auto"}} />
-                            {/* source: https://cdn-images.threadless.com/threadless-media/artist_shops/shops/riddlebee/products/235158/shirt-1495735761-9c0aa522a90f664edddda3706643e243.png?v=3&d=eyJvbmx5X21ldGEiOiBmYWxzZSwgImZvcmNlIjogZmFsc2UsICJvcHMiOiBbWyJ0cmltIiwgW2ZhbHNlLCBmYWxzZV0sIHt9XSwgWyJyZXNpemUiLCBbXSwgeyJ3aWR0aCI6IDk5Ni4wLCAiYWxsb3dfdXAiOiBmYWxzZSwgImhlaWdodCI6IDk5Ni4wfV0sIFsiY2FudmFzX2NlbnRlcmVkIiwgWzEyMDAsIDEyMDBdLCB7ImJhY2tncm91bmQiOiAiMDExOTJjIn1dLCBbInJlc2l6ZSIsIFs4MDBdLCB7fV0sIFsiY2FudmFzX2NlbnRlcmVkIiwgWzgwMCwgODAwLCAiI2ZmZmZmZiJdLCB7fV0sIFsiZW5jb2RlIiwgWyJqcGciLCA4NV0sIHt9XV19 */}
-                        </div>
-                    </>
-                )}
+                                <img src={SaturnCat} width="400" style={{ margin: "auto" }} />
+                                {/* source: https://cdn-images.threadless.com/threadless-media/artist_shops/shops/riddlebee/products/235158/shirt-1495735761-9c0aa522a90f664edddda3706643e243.png?v=3&d=eyJvbmx5X21ldGEiOiBmYWxzZSwgImZvcmNlIjogZmFsc2UsICJvcHMiOiBbWyJ0cmltIiwgW2ZhbHNlLCBmYWxzZV0sIHt9XSwgWyJyZXNpemUiLCBbXSwgeyJ3aWR0aCI6IDk5Ni4wLCAiYWxsb3dfdXAiOiBmYWxzZSwgImhlaWdodCI6IDk5Ni4wfV0sIFsiY2FudmFzX2NlbnRlcmVkIiwgWzEyMDAsIDEyMDBdLCB7ImJhY2tncm91bmQiOiAiMDExOTJjIn1dLCBbInJlc2l6ZSIsIFs4MDBdLCB7fV0sIFsiY2FudmFzX2NlbnRlcmVkIiwgWzgwMCwgODAwLCAiI2ZmZmZmZiJdLCB7fV0sIFsiZW5jb2RlIiwgWyJqcGciLCA4NV0sIHt9XV19 */}
+                            </div>
+                        </>
+                    )}
             </Grid>
         </div>
     );

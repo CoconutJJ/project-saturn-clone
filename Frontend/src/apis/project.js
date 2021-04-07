@@ -29,6 +29,9 @@ class Project {
                 uname, projectID
             }
         );
+        if(data.errors ){
+            throw Error(data.errors[0].message);
+        }
         return data;
     }
 
@@ -57,6 +60,9 @@ class Project {
                 projectID
             }
         );
+        if(data.errors){
+            throw Error(data.errors[0].message);
+        }
         return data.data.getProjectGuests;
     }
 

@@ -1,7 +1,7 @@
 const Docker = require("dockerode");
 const fs = require("fs");
 const uuid = require("uuid");
-const stream = require("stream");
+const stream = require("memory-streams");
 const path = require("path");
 const Interrupts = require("../interrupts");
 
@@ -39,6 +39,7 @@ class Sandbox {
             stream: true,
             stdin: true,
             stdout: true,
+            stderr: true,
         });
 
         await this.container.start();
@@ -78,9 +79,6 @@ class Sandbox {
 
         await this._run("/bin/sh");
 
-        Interrupts.addOnExitJob(() => {
-            this.destroy();
-        });
 
         return this.stream;
     }

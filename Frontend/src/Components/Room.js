@@ -58,9 +58,12 @@ const Room = (props) => {
     console.log("hi")
     useEffect(() => {
         console.log("useeffect entered")
-        socketRef.current = io.connect("http://localhost:8080", {path: '/video'});
+        
         if(props.videoflag == true) {
+            socketRef.current = io.connect("http://localhost:8080", {path: '/video'});
             console.log("video flag is true")
+            console.log(socketRef.current)
+            //socketRef.current.on('connection', () => {
             navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
                 userVideo.current.srcObject = stream;
                 console.log("join the room")
@@ -112,27 +115,39 @@ const Room = (props) => {
                     console.log("----found item----", item)
                     item.peer.signal(payload.signal);
                 });
-    
-                
-            })
-        } else {
-            console.log("videflag false")
 
-            socketRef.current.on("disconnect", () => {
-                console.log("videflag false")
                 socketRef.current.on("user left", userID => {
-                    console.log("frontend disconnect");
-                    const item = peersRef.current.find(p => p.peerID === userID);
-                    if(item) {
-                        item.peer.destroy();
-                    }
-                    const peers = peersRef.current.filter(p => p.peerID !== userID);
-                    peersRef.current = peers;
-                    setPeers(peers);
+                    console.log("videflag false")
+                    // socketRef.current.on("user left", userID => {
+                        console.log("frontend disconnect");
+                        const item = peersRef.current.filter(p => p.peerID === userID);
+                        for (var i = 0; i < item.length; i++) {
+                            if(item[i]) {
+                                item[i].peer.destroy();
+                                
+                            }
 
-
+                        }
+                        
+                        const peers = peersRef.current.filter(p => p.peerID !== userID);
+                        peersRef.current = peers;
+                        setPeers(peers);
+    
+    
+                    // });
                 });
             });
+            //});
+
+        } else {
+            console.log("videflag false")
+            if(socketRef.current) {
+                socketRef.current.disconnect();
+            }
+            
+
+            
+            
             
 
             

@@ -14,6 +14,7 @@
     "mysql": "^2.18.1",
     "reconnecting-websocket": "^4.2.0",
     "sharedb": "^1.0.0-beta",
+    "sharedb-access": "^5.0.0",
     "sharedb-mysql": "^1.0.5",
     "sharedb-string-binding": "^1.0.0",
     "socket.io": "^4.0.0",

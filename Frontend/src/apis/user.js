@@ -18,6 +18,11 @@ class User {
         return data.data.loginUser;
     }
 
+    static async logout() {
+        await API.q("query { logoutUser }");
+
+    }
+
     /**
      * Create a user account
      * @param {string} firstname

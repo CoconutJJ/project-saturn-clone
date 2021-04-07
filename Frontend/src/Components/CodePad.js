@@ -100,7 +100,7 @@ export default CodePad;
 /***************************************************************************************
  *    Title: Collaborative Textarea with ShareDB
  *    Author: Alec Gibson
- *    Date: 202-04-20
+ *    Date: 2020-04-20
  *    Availability: https://github.com/share/sharedb/tree/master/examples/textarea
  *
  ***************************************************************************************/

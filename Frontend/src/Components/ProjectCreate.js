@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import {
     Card,
     CardContent,
@@ -14,6 +14,9 @@ import pyLogo from "../Media/python-logo.png";
 import cLogo from "../Media/c-logo.png";
 import Project from "../apis/project";
 
+export const envToIcon = { "python": pyLogo, "c": cLogo }
+export const envToLabel = { "python": "PYTHON 3.XX", "c": "GCC C" }
+
 function ProjectCreate() {
 
     const [newProjectEnv, setNewProjectEnv] = useState(null);
@@ -22,11 +25,12 @@ function ProjectCreate() {
     const handleEnvSelection = (event, newEnv) => {
         setNewProjectEnv(newEnv);
     };
-    
+
 
     const createProject = async () => {
         if (await Project.createProject(newProjectName, newProjectEnv)) {
             setNewProjectName("");
+            document.dispatchEvent(new Event("onCreateProject"));
         } else {
             alert("Project creation failed!");
         }
@@ -53,34 +57,29 @@ function ProjectCreate() {
                             onChange={handleEnvSelection}
                             aria-label="New project environment"
                         >
-                            <ToggleButton value="python">
-                                {/* https://iconscout.com/icon/c-programming */}
-                                <Paper>
-                                    <div
-                                        style={{
-                                            backgroundImage: `url(${pyLogo})`,
-                                            backgroundSize: "contain",
-                                            height: "50px",
-                                            width: "150px",
-                                        }}
-                                    ></div>
-                                    Python 3.XX
-                                </Paper>
-                            </ToggleButton>
-                            <ToggleButton value="c">
-                                {/* https://iconscout.com/icon/c-programming */}
-                                <Paper>
-                                    <div
-                                        style={{
-                                            backgroundImage: `url(${cLogo})`,
-                                            backgroundSize: "contain",
-                                            height: "50px",
-                                            width: "50px",
-                                        }}
-                                    ></div>
-                                    GCC C
-                                </Paper>
-                            </ToggleButton>
+                            {
+                                Object.keys(envToIcon).map((env) => {
+                                    return (
+                                        <ToggleButton value={env} key={env}>
+                                            {/* https://iconscout.com/icon/c-programming */}
+                                            {/* https://iconscout.com/icon/c-programming */}
+                                            <Paper>
+                                                <div
+                                                    style={{
+                                                        backgroundImage: `url(${envToIcon[env]})`,
+                                                        backgroundSize: "contain",
+                                                        backgroundRepeat: "no-repeat",
+                                                        backgroundPosition: "center",
+                                                        height: "50px",
+                                                        width: "150px",
+                                                    }}
+                                                ></div>
+                                                {envToLabel[env]}
+                                            </Paper>
+                                        </ToggleButton>
+                                    )
+                                })
+                            }
                         </ToggleButtonGroup>
                     </Grid>
                     <Grid item>

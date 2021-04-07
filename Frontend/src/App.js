@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useReducer, useContext } from "react";
 import {
     BrowserRouter as Router,
     Switch,
@@ -7,7 +7,18 @@ import {
     Redirect,
 } from "react-router-dom";
 
-import { Grid, Typography, AppBar, Toolbar, Button } from "@material-ui/core";
+import {
+    Grid,
+    Typography,
+    AppBar,
+    Toolbar,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 import LogIn from "./Pages/LogIn";
@@ -16,7 +27,6 @@ import SignUp from "./Pages/SignUp";
 import Dashboard from "./Pages/Dashboard";
 import Project from "./Components/Project";
 import User from "./apis/user";
-
 import "./Styles/main.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -40,8 +50,17 @@ function App() {
         history.push("/signup");
     };
 
+    let toDashboardPage = () => {
+        history.push("/dashboard");
+    }
+
+    let logout = async () => {
+        await User.logout();
+        window.location.href="/";
+    }
+
     let loggedIn = User.isLoggedIn();
-    console.log(loggedIn);
+
     return (
         <>
             <div className={classes.root}>
@@ -49,7 +68,10 @@ function App() {
                     <Grid item sm={12}>
                         <AppBar
                             position="relative"
-                            style={{ backgroundColor: "black", zIndex: 1400 }}
+                            style={{
+                                backgroundColor: "black",
+                                zIndex: 1400,
+                            }}
                         >
                             <Toolbar>
                                 <Typography
@@ -73,7 +95,22 @@ function App() {
                                             Sign Up
                                         </Button>
                                     </>
-                                ) : null}
+                                ) : (
+                                    <>
+                                        <Button
+                                            color="inherit"
+                                            onClick={toDashboardPage}
+                                        >
+                                            Dashboard
+                                        </Button>
+                                        <Button
+                                            color="inherit"
+                                            onClick={logout}
+                                        >
+                                            Log Out
+                                        </Button>
+                                    </>
+                                )}
                             </Toolbar>
                         </AppBar>
                     </Grid>
@@ -83,10 +120,18 @@ function App() {
                                 <Home />
                             </Route>
                             <Route path="/login" exact={true}>
-                                <LogIn />
+                                {!loggedIn ? (
+                                    <LogIn />
+                                ) : (
+                                    <Redirect to="/dashboard" />
+                                )}
                             </Route>
                             <Route path="/signup" exact={true}>
-                                <SignUp />
+                                {!loggedIn ? (
+                                    <SignUp />
+                                ) : (
+                                    <Redirect to="/dashboard" />
+                                )}
                             </Route>
                             <Route path="/dashboard" exact={true}>
                                 {loggedIn ? <Dashboard /> : <Redirect to="/" />}
