@@ -121,7 +121,7 @@ export default function Project() {
                                                 newDocumentName,
                                                 parseInt(projectID)
                                             );
-                                            reloadProject();
+                                            await reloadProject();
                                         } catch (e) {
                                             document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
                                         }
@@ -170,7 +170,8 @@ export default function Project() {
                                                 newGuestUsername,
                                                 parseInt(projectID)
                                             );
-                                            reloadProject();
+                                            setNewGuestUsername("");
+                                            await reloadProject();
                                         } catch (e) {
                                             document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
                                         }
@@ -194,11 +195,14 @@ export default function Project() {
                                                 dialogTitle: "Remove Participant",
                                                 dialogMessage: `Are you sure you want to remove participant ${uname}?`,
                                                 dialogAgree: async () => {
-                                                    console.log("i agree");
-                                                    await reloadProject()
+                                                    try {
+                                                        await ProjectAPI.unShareProject(uname, parseInt(projectID));
+                                                        await reloadProject()
+                                                    } catch (e) {
+                                                        document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
+                                                    }
                                                 },
                                                 dialogDisAgree: async () => {
-                                                    console.log("i disagree");
                                                     await reloadProject();
                                                 }
                                             }

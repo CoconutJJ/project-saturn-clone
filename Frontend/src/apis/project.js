@@ -14,14 +14,14 @@ class Project {
                 name, env
             }
         );
-        if(data.errors ){
+        if (data.errors) {
             throw Error(data.errors[0].message);
         }
         return data;
     }
 
     /**
-     * Create a new project
+     * Share a project with a user
      * @param {string} uname  //guest username
      * @param {int} projectID //projectID
      */
@@ -32,7 +32,25 @@ class Project {
                 uname, projectID
             }
         );
-        if(data.errors ){
+        if (data.errors) {
+            throw Error(data.errors[0].message);
+        }
+        return data;
+    }
+
+    /**
+     * Unshare a project from a user
+     * @param {string} uname  //guest username
+     * @param {int} projectID //projectID
+     */
+    static async unShareProject(uname, projectID) {
+        let data = await API.m(
+            `mutation($uname: String, $projectID: Int){ unShareProject(uname: $uname, projectID: $projectID)}`,
+            {
+                uname, projectID
+            }
+        );
+        if (data.errors) {
             throw Error(data.errors[0].message);
         }
         return data;
@@ -63,7 +81,7 @@ class Project {
                 projectID
             }
         );
-        if(data.errors){
+        if (data.errors) {
             throw Error(data.errors[0].message);
         }
         return data.data.getProjectGuests;

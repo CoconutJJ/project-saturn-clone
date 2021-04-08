@@ -20,12 +20,24 @@ class Project {
     /**
      *  Share a project with a user.
      * @param {string} uname
-     * @param {int} projectID   //environment of the project
+     * @param {int} projectID   
      */
     static async share(uname, projectID) {
         let [results, fields] = await Project.db.query(
             "INSERT INTO projectsToSharedUsers (uname,projectID) VALUES (?,?)",
             [uname, projectID]);
+        return results.affectedRows != 0;
+    }
+
+    /**
+     *  Unshare a project with a user.
+     * @param {string} uname
+     * @param {int} projectID   
+     */
+    static async unShare(uname, projectID) {
+        let [results, fields] = await Project.db.query(
+            "DELETE FROM projectsToSharedUsers WHERE projectID = ? AND uname = ?",
+            [projectID,uname]);
         return results.affectedRows != 0;
     }
 

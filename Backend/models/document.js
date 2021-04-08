@@ -23,7 +23,7 @@ class Document {
         );
         if (parseInt(results[0].count) > 0) {
             output.error = Error(
-                "A document with the same name already exists"
+                "A document with the same name already exists."
             );
             output.error.status = 400;
         } else {

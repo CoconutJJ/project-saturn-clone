@@ -10,8 +10,12 @@ function ProjectList() {
     const [projectDisplayData, setProjectDisplayData] = useState(null);
 
     const updateProjectDisplay = async (type) => {
-        let data = await Project.get(type);
-        setProjectDisplayData(data);
+        try{
+            let data = await Project.get(type);
+            setProjectDisplayData(data);
+        }catch(e){
+            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }));
+        }
     };
 
     const handleProjectDisplayTypeChange = async (event, newType) => {

@@ -27,4 +27,5 @@ type Mutation {
     createProject(name: String, env: String): Boolean
     shareProject(uname: String, projectID: Int): Boolean
     createDocument(name: String, projectID: Int): Boolean
+    unShareProject(uname: String, projectID: Int): Boolean
 }

@@ -25,12 +25,12 @@ const root = {
                 return true;
             } else {
                 context.res.status(401);
-                return Error("Invalid Credentials");
+                return Error("Invalid credentials");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
     logoutUser: async ({}, context) => {
@@ -48,7 +48,7 @@ const root = {
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
     signUpUser: async (
@@ -69,12 +69,12 @@ const root = {
                 return true;
             } else {
                 context.res.status(400);
-                return Error("Invalid Arguments");
+                return Error("Invalid arguments");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
     createProject: async ({ name, env }, context) => {
@@ -87,12 +87,12 @@ const root = {
                 );
             } else {
                 context.res.status(403);
-                return Error("Access Denied");
+                return Error("Access Denied. Please log in.");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
     shareProject: async ({ uname, projectID }, context) => {
@@ -104,12 +104,29 @@ const root = {
                 return await Project.share(uname, projectID);
             } else {
                 context.res.status(403);
-                return Error("Access Denied");
+                return Error("Access Denied. Only project owners can share projects.");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
+        }
+    },
+    unShareProject: async ({ uname, projectID }, context) => {
+        try {
+            if (
+                context.req.loggedIn &&
+                (await Project.isOwner(context.req.session.username, projectID))
+            ) {
+                return await Project.unShare(uname, projectID);
+            } else {
+                context.res.status(403);
+                return Error("Access Denied. Only project owners can unshare projects.");
+            }
+        } catch (e) {
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal server error");
         }
     },
     createDocument: async ({ name, projectID }, context) => {
@@ -131,12 +148,12 @@ const root = {
                 return true;
             } else {
                 context.res.status(403);
-                return Error("Access Denied");
+                return Error("Access Denied. Only project owners and participants can create documents.");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
     getProjectGuests: async ({ projectID }, context) => {
@@ -151,12 +168,12 @@ const root = {
                 return await Project.getGuests(projectID);
             } else {
                 context.res.status(403);
-                return Error("Access Denied");
+                return Error("Access Denied. Please log in.");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
     getProjects: async ({ relationship }, context) => {
@@ -169,12 +186,12 @@ const root = {
                 return data;
             } else {
                 context.res.status(403);
-                return Error("Access Denied");
+                return Error("Access Denied. Please log in.");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
     getDocuments: async ({ projectID }, context) => {
@@ -189,12 +206,12 @@ const root = {
                 return await Document.get(projectID);
             } else {
                 context.res.status(403);
-                return Error("Access Denied");
+                return Error("Access Denied. Only project owners and participants can see documents.");
             }
         } catch (e) {
             console.error(e);
             context.res.status(500);
-            return Error("Internal Server Error");
+            return Error("Internal server error");
         }
     },
 };
