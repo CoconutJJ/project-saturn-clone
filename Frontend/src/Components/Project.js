@@ -15,6 +15,7 @@ import {
     Grid,
     FormControl,
 } from "@material-ui/core";
+import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from "@material-ui/core/styles";
 
 /**
@@ -77,7 +78,7 @@ export default function Project() {
             let guestData = await ProjectAPI.getGuests(parseInt(projectID));
             setGuests(guestData);
         } catch (e) {
-            document.dispatchEvent(new CustomEvent("custom-onError",{detail:{error:e}}))
+            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
         }
     };
 
@@ -122,7 +123,7 @@ export default function Project() {
                                             );
                                             reloadProject();
                                         } catch (e) {
-                                            document.dispatchEvent(new CustomEvent("custom-onError",{detail:{error:e}}))
+                                            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
                                         }
                                     }}
                                 >
@@ -171,7 +172,7 @@ export default function Project() {
                                             );
                                             reloadProject();
                                         } catch (e) {
-                                            document.dispatchEvent(new CustomEvent("custom-onError",{detail:{error:e}}))
+                                            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
                                         }
                                     }}
                                 >
@@ -186,6 +187,25 @@ export default function Project() {
                         {guests.map(({ uname }) => (
                             <ListItem key={uname}>
                                 <ListItemText primary={uname} />
+                                <IconButton onClick={() => {
+                                    document.dispatchEvent(new CustomEvent("custom-showDialog",
+                                        {
+                                            detail: {
+                                                dialogTitle: "Remove Participant",
+                                                dialogMessage: `Are you sure you want to remove participant ${uname}?`,
+                                                dialogAgree: async () => {
+                                                    console.log("i agree");
+                                                    await reloadProject()
+                                                },
+                                                dialogDisAgree: async () => {
+                                                    console.log("i disagree");
+                                                    await reloadProject();
+                                                }
+                                            }
+                                        }))
+                                }}  >
+                                    <CloseIcon />
+                                </IconButton>
                             </ListItem>
                         ))}
                     </List>
@@ -210,14 +230,14 @@ export default function Project() {
                         </Grid>
                     </>
                 ) : (
-                    <>
-                        <Grid container justify="center">
-                            <Grid item>
-                                <img src={SaturnCat} width="400" />
+                        <>
+                            <Grid container justify="center">
+                                <Grid item>
+                                    <img src={SaturnCat} width="400" />
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </>
-                )}
+                        </>
+                    )}
             </main>
         </div>
     );

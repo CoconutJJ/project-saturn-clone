@@ -14,7 +14,12 @@ import {
     Toolbar,
     Button,
     Collapse,
-    IconButton
+    IconButton,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -28,6 +33,7 @@ import User from "./apis/user";
 import "./Styles/main.css";
 import Credits from "./Pages/Credits";
 import CloseIcon from '@material-ui/icons/Close';
+import { FunctionsTwoTone } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -41,15 +47,34 @@ const useStyles = makeStyles((theme) => ({
 function App() {
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [displayDialog, setDisplayDialog] = useState(false);
+    const [dialogTitle,setDialogTitle] = useState("");
+    const [dialogMessage,setDialogMessage] = useState("");
+    const [dialogAgree,setDialogAgree] = useState(()=>()=>setDisplayDialog(false));
+    const [dialogDisAgree,setDialogDisAgree] = useState(()=>()=>setDisplayDialog(false));
     useEffect(() => {
+        const showDialog = (event) =>{
+            setDialogTitle(event.detail.dialogTitle);
+            setDialogMessage(event.detail.dialogMessage);
+            setDialogAgree(() => async()=>{
+                await event.detail.dialogAgree();
+                setDisplayDialog(false);
+            });
+            setDialogDisAgree(() => async()=>{
+                await event.detail.dialogDisAgree();
+                setDisplayDialog(false);
+            });
+            setDisplayDialog(true);
+        }
         const showError = (event) => {
-            console.log(event.detail.error.message);
             setErrorMessage(event.detail.error.message)
             setDisplayError(true);
         }
         document.addEventListener("custom-onError", showError);
+        document.addEventListener("custom-showDialog", showDialog);
         return () => {
             document.removeEventListener("custom-onError", showError);
+            document.removeEventListener("custom-showDialog", showDialog);
         }
     }, []);
     const classes = useStyles();
@@ -81,6 +106,25 @@ function App() {
     return (
         <>
             <div className={classes.root}>
+                <Dialog
+                    open={displayDialog}
+                    onClose={() => setDisplayDialog(false)}
+                >
+                    <DialogTitle>{dialogTitle}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {dialogMessage}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={()=>dialogDisAgree()} color="primary">
+                            No
+                        </Button>
+                        <Button onClick={()=>dialogAgree()} color="primary" autoFocus>
+                            Yes
+                        </Button>
+                    </DialogActions>
+                </Dialog>
                 <Grid container>
                     <Grid item sm={12}>
                         <AppBar
