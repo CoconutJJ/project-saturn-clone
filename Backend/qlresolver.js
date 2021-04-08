@@ -101,7 +101,13 @@ const root = {
                 context.req.loggedIn &&
                 (await Project.isOwner(context.req.session.username, projectID))
             ) {
-                return await Project.share(uname, projectID);
+                let result=  await Project.share(uname, projectID);
+                if (result.isShared) {
+                    return true;
+                } else {
+                    context.res.status(result.error.status);
+                    return result.error;
+                }
             } else {
                 context.res.status(403);
                 return Error("Access Denied. Only project owners can share projects.");

@@ -23,10 +23,42 @@ class Project {
      * @param {int} projectID   
      */
     static async share(uname, projectID) {
-        let [results, fields] = await Project.db.query(
-            "INSERT INTO projectsToSharedUsers (uname,projectID) VALUES (?,?)",
-            [uname, projectID]);
-        return results.affectedRows != 0;
+        const output = {
+            isShared: false,
+            error: undefined,
+        };
+
+        let [countOwnerResults, fields] = await Project.db.query(
+            "SELECT COUNT(*) as count FROM projects WHERE id = ? AND owner = ?",
+            [projectID, uname]);
+        if (parseInt(countOwnerResults[0].count) > 0) {
+            output.error = Error(
+                `You are already the owner of this project.`
+            );
+            output.error.status = 400;
+            return output;
+        }
+
+        let [
+            countGuestResults,
+            _,
+        ] = await Project.db.query(
+            "SELECT COUNT(*) as count FROM projectsToSharedUsers WHERE projectID = ? AND uname = ?",
+            [projectID, uname]
+        );
+        if (parseInt(countGuestResults[0].count) > 0) {
+            output.error = Error(
+                `This project is already shared with user ${uname}.`
+            );
+            output.error.status = 400;
+        } else {
+
+            let [results, fields] = await Project.db.query(
+                "INSERT INTO projectsToSharedUsers (uname,projectID) VALUES (?,?)",
+                [uname, projectID]);
+            output.isShared = results.affectedRows != 0;
+        }
+        return output;
     }
 
     /**
@@ -37,7 +69,7 @@ class Project {
     static async unShare(uname, projectID) {
         let [results, fields] = await Project.db.query(
             "DELETE FROM projectsToSharedUsers WHERE projectID = ? AND uname = ?",
-            [projectID,uname]);
+            [projectID, uname]);
         return results.affectedRows != 0;
     }
 
