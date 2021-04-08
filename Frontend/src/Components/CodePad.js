@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import React, { useEffect, useRef, useState } from "react";
 import MonacoEditor from "react-monaco-editor";
 
@@ -17,12 +18,12 @@ function CodePad({ projectID, documentID }) {
     const textArea = useRef(null);
 
     useEffect(() => {
-
+        if (!editor) return;
         window.addEventListener("resize", () => {
             editor.layout();
         })
 
-    }, [])
+    }, [editor])
 
     useEffect(() => {
         if (!editor) return;

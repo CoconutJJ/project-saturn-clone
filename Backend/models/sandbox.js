@@ -3,7 +3,6 @@ const fs = require("fs");
 const uuid = require("uuid");
 const stream = require("memory-streams");
 const path = require("path");
-const Interrupts = require("../interrupts");
 
 class Sandbox {
     constructor(image) {
@@ -61,9 +60,6 @@ class Sandbox {
         this.mountPath = path.join(__dirname, uuid.v4());
         fs.mkdirSync(this.mountPath);
 
-        Interrupts.addOnExitJob(() => {
-            this.destroy();
-        });
     }
 
     destroyHostMount() {
