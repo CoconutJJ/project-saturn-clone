@@ -18,21 +18,21 @@ const Document = require("./models/document");
 const Sandbox = require("./models/sandbox");
 const shareDb = require("./models/sharedb")
 const setShareDbAccess = require("./models/sharedb-access");
+require('dotenv').config();
 
 app.use(morgan("dev"));
 app.use(bodyParser.json());
-
 var sessionParser = session({
     store: new MySQLStore({
-        host: "localhost",
-        user: "root",
-        password: "1234",
-        database: "saturn",
+        host: process.env.sql_host,
+        user: process.env.sql_user,
+        password: process.env.sql_password,
+        database: process.env.sql_database,
     }),
-    secret: "this is top secret!",
+    secret: process.env.session_secret,
     resave: false,
     saveUninitialized: false,
-    key: "saturn-sessid",
+    key: process.env.session_key,
 });
 app.use(sessionParser);
 
@@ -164,7 +164,7 @@ const serverInit = async () => {
     projectIDs.map(({ id }) => setShareDbAccess(id));
 };
 
-serverInit().then(() => webServer.listen(8080));
+serverInit().then(() => webServer.listen(8080)).then(()=>console.log("Server started!"));
 
 //Citation
 
