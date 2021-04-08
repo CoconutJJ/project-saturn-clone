@@ -31,6 +31,7 @@ function ProjectCreate() {
         try {
             await Project.createProject(newProjectName, newProjectEnv)
             setNewProjectName("");
+            document.dispatchEvent(new CustomEvent("custom-onCreateProject"));
         } catch (e) {
             document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }));
         }
