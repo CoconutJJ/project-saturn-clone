@@ -49,8 +49,7 @@ class XTermBuffer {
         this.term.write("\b" + " ".repeat(tail.length + 1) + "\b".repeat(tail.length + 1) + tail + "\b".repeat(tail.length));
 
         this.cursor--;
-        console.log(this.cursor);
-        console.log(this.line);
+
     }
 
     newline() {

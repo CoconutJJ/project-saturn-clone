@@ -13,11 +13,6 @@ import {
     AppBar,
     Toolbar,
     Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -28,6 +23,7 @@ import Dashboard from "./Pages/Dashboard";
 import Project from "./Components/Project";
 import User from "./apis/user";
 import "./Styles/main.css";
+import Credits from "./Pages/Credits";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -52,6 +48,10 @@ function App() {
 
     let toDashboardPage = () => {
         history.push("/dashboard");
+    }
+
+    let toCreditsPage = () => {
+        history.push("/credits");
     }
 
     let logout = async () => {
@@ -93,6 +93,12 @@ function App() {
                                             onClick={toSignUpPage}
                                         >
                                             Sign Up
+                                        </Button>
+                                        <Button
+                                            color="inherit"
+                                            onClick={toCreditsPage}
+                                        >
+                                            Credits
                                         </Button>
                                     </>
                                 ) : (
@@ -141,6 +147,9 @@ function App() {
                             </Route>
                             <Route path="/projects" exact={true}>
                                 {loggedIn ? <Project /> : <Redirect to="/" />}
+                            </Route>
+                            <Route path="/credits" exact={true}>
+                                <Credits/>
                             </Route>
                         </Switch>
                     </Grid>

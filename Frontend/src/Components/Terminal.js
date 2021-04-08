@@ -48,7 +48,6 @@ const Terminal = ({ projectID, documentID }) => {
         const code = data.charCodeAt(0);
         switch (code) {
             case 13:
-                console.log("command");
                 socket.emit("setfs", projectID)
                 socket.emit("command", buffer.line + "\n");
                 buffer.newline();
