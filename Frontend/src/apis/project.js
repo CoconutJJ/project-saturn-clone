@@ -14,6 +14,9 @@ class Project {
                 name, env
             }
         );
+        if(data.errors ){
+            throw Error(data.errors[0].message);
+        }
         return data;
     }
 

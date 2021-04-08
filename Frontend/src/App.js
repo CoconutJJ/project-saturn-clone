@@ -1,4 +1,4 @@
-import React, { useReducer, useContext } from "react";
+import React, { useReducer, useContext, useState, useEffect } from "react";
 import {
     BrowserRouter as Router,
     Switch,
@@ -13,8 +13,11 @@ import {
     AppBar,
     Toolbar,
     Button,
+    Collapse,
+    IconButton
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import LogIn from "./Pages/LogIn";
 import Home from "./Pages/Home";
@@ -24,6 +27,7 @@ import Project from "./Components/Project";
 import User from "./apis/user";
 import "./Styles/main.css";
 import Credits from "./Pages/Credits";
+import CloseIcon from '@material-ui/icons/Close';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -35,6 +39,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function App() {
+    const [displayError, setDisplayError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    useEffect(() => {
+        const showError = (event) => {
+            console.log(event.detail.error.message);
+            setErrorMessage(event.detail.error.message)
+            setDisplayError(true);
+        }
+        document.addEventListener("custom-onError", showError);
+        return () => {
+            document.removeEventListener("custom-onError", showError);
+        }
+    }, []);
     const classes = useStyles();
     const history = useHistory();
 
@@ -56,7 +73,7 @@ function App() {
 
     let logout = async () => {
         await User.logout();
-        window.location.href="/";
+        window.location.href = "/";
     }
 
     let loggedIn = User.isLoggedIn();
@@ -102,23 +119,33 @@ function App() {
                                         </Button>
                                     </>
                                 ) : (
-                                    <>
-                                        <Button
-                                            color="inherit"
-                                            onClick={toDashboardPage}
-                                        >
-                                            Dashboard
+                                        <>
+                                            <Button
+                                                color="inherit"
+                                                onClick={toDashboardPage}
+                                            >
+                                                Dashboard
                                         </Button>
-                                        <Button
-                                            color="inherit"
-                                            onClick={logout}
-                                        >
-                                            Log Out
+                                            <Button
+                                                color="inherit"
+                                                onClick={logout}
+                                            >
+                                                Log Out
                                         </Button>
-                                    </>
-                                )}
+                                        </>
+                                    )}
                             </Toolbar>
                         </AppBar>
+                        <Collapse in={displayError}>
+                            <Alert
+                                severity="error"
+                                style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center" }}>
+                                {errorMessage}
+                                <IconButton onClick={() => setDisplayError(false)}  >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Alert>
+                        </Collapse>
                     </Grid>
                     <Grid sm={12} item>
                         <Switch>
@@ -129,15 +156,15 @@ function App() {
                                 {!loggedIn ? (
                                     <LogIn />
                                 ) : (
-                                    <Redirect to="/dashboard" />
-                                )}
+                                        <Redirect to="/dashboard" />
+                                    )}
                             </Route>
                             <Route path="/signup" exact={true}>
                                 {!loggedIn ? (
                                     <SignUp />
                                 ) : (
-                                    <Redirect to="/dashboard" />
-                                )}
+                                        <Redirect to="/dashboard" />
+                                    )}
                             </Route>
                             <Route path="/dashboard" exact={true}>
                                 {loggedIn ? <Dashboard /> : <Redirect to="/" />}
@@ -149,7 +176,7 @@ function App() {
                                 {loggedIn ? <Project /> : <Redirect to="/" />}
                             </Route>
                             <Route path="/credits" exact={true}>
-                                <Credits/>
+                                <Credits />
                             </Route>
                         </Switch>
                     </Grid>

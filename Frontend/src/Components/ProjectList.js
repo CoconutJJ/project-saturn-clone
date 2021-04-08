@@ -23,9 +23,9 @@ function ProjectList() {
     useEffect(() => {
         function callback() { updateProjectDisplay(projectDisplayType); }
         callback();
-        document.addEventListener("onCreateProject", callback);
+        document.addEventListener("custom-onCreateProject", callback);
         return () => {
-            document.removeEventListener("onCreateProject", callback);
+            document.removeEventListener("custom-onCreateProject", callback);
         }
     }, []);
     return (

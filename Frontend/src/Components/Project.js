@@ -77,7 +77,7 @@ export default function Project() {
             let guestData = await ProjectAPI.getGuests(parseInt(projectID));
             setGuests(guestData);
         } catch (e) {
-            alert(e);
+            document.dispatchEvent(new CustomEvent("custom-onError",{detail:{error:e}}))
         }
     };
 
@@ -122,7 +122,7 @@ export default function Project() {
                                             );
                                             reloadProject();
                                         } catch (e) {
-                                            alert(e);
+                                            document.dispatchEvent(new CustomEvent("custom-onError",{detail:{error:e}}))
                                         }
                                     }}
                                 >
@@ -171,7 +171,7 @@ export default function Project() {
                                             );
                                             reloadProject();
                                         } catch (e) {
-                                            alert(e);
+                                            document.dispatchEvent(new CustomEvent("custom-onError",{detail:{error:e}}))
                                         }
                                     }}
                                 >
@@ -185,7 +185,6 @@ export default function Project() {
                         <ListItem>Participants</ListItem>
                         {guests.map(({ uname }) => (
                             <ListItem key={uname}>
-                                <ListItemIcon></ListItemIcon>
                                 <ListItemText primary={uname} />
                             </ListItem>
                         ))}

@@ -9,23 +9,20 @@ import User from "../apis/user"
 function LogIn() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
-    
-    let [isError, setError] = useState(false);
-
-    const history = useHistory();
 
     let validEntries = () => {
         return username.length > 0 && password.length > 0;
     };
 
     let login = async () => {
+        try {
 
-        if (await User.login(username, password)) {
-            window.location.href="/dashboard";
-        } else {
-            setError(true);
+            if (await User.login(username, password)) {
+                window.location.href = "/dashboard";
+            }
+        } catch (e) {
+            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
         }
-
     }
 
     return (
@@ -68,14 +65,12 @@ function LogIn() {
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
                                     <TextField
-                                        error={isError}
                                         id="input-with-icon-grid"
                                         label="Username"
                                         value={username}
                                         onChange={(e) =>
                                             setUsername(e.target.value)
                                         }
-                                        helperText = {isError ? "Incorrect Username" : null}
                                         variant="outlined"
                                     />
                                 </Grid>
@@ -84,14 +79,12 @@ function LogIn() {
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
                                     <TextField
-                                        error={isError}
                                         id="input-with-icon-grid"
                                         label="Password"
                                         value={password}
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
-                                        helperText = {isError ? "Incorrect Password" : null}
                                         variant="outlined"
                                         type="Password"
                                     />
