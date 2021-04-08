@@ -42,9 +42,6 @@ shareDbAccess(shareDb);
 
 const setShareDbAccess = (projectID) => {
     //Document & project access restrictions
-    shareDb.allowCreate(projectID.toString(), async (docId, doc, session) => {
-        return await Project.isOwnerOrGuest(session.username, projectID)
-    })
     shareDb.allowUpdate(projectID.toString(), async (docId, oldDoc, newDoc, ops, session) => {
         return await Project.isOwnerOrGuest(session.username, projectID)
     });
@@ -57,11 +54,6 @@ const setShareDbAccess = (projectID) => {
     );
     shareDb.allowRead(projectID.toString(), async (docId, doc, session) => {
         console.log("read");
-        return await Project.isOwnerOrGuest(session.username, projectID);
-    });
-    shareDb.allowDelete(projectID.toString(), async (docId, doc, session) => {
-        
-        console.log("delete");
         return await Project.isOwnerOrGuest(session.username, projectID);
     });
 }
