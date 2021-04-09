@@ -349,12 +349,6 @@ webServer.on("upgrade", (request, socket, head) => {
 
 
 
-const users = {};
-
-const socketToRoom = {};
-
-const loggedin = {};
-
 io_term.on("connection", async (socket) => {
     
     console.log("new connection");
@@ -396,9 +390,6 @@ io_term.on("connection", async (socket) => {
     socket.on("makefile", (filename) => {
         sb.createMountFile(filename, "");
     });
-
-    
-
     
     socket.on("disconnect", () => {
         sb.destroy();
@@ -408,115 +399,62 @@ io_term.on("connection", async (socket) => {
 });
 
 
-
+const users = {};
+const rooms = {};
 
 io_video.on('connection', socket => {
-    console.log("new room connection")
-    // let username = socket.handshake.session.username;
-    // socket.on("join room", roomID => {
-    //     console.log("users", users)
-    //     if (users[roomID]) {
-    //         if(users[roomID].indexOf(username) == -1) {
-    //             users[roomID].push(username);
-    //         }
-            
-    //     } else {
-    //         users[roomID] = [username];
-    //     }
-    //     socketToRoom[username] = roomID;
-    //     console.log("sockettoroom", socketToRoom)
-    //     // const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
-    //     const usersInThisRoom = users[roomID];
-    //     console.log("users in server, ", users)
-    //     console.log("usersinthis roomm ", usersInThisRoom)
-    //     socket.emit("all users", usersInThisRoom);
-    // });
-
-    // socket.on("sending signal", payload => {
-    //     console.log("sending signal", payload.callerID)
-    //     io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
-    // });
-
-    // socket.on("returning signal", payload => {
-    //     console.log("receving returned signal", payload.callerID)
-    //     console.log("receving returned signal", username)
-    //     io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: username });
-    // });
-
-    // socket.on('disconnect', () => {
-    //     const roomID = socketToRoom[username];
-    //     let room = users[roomID];
-    //     console.log("room", room)
-    //     console.log("socket to room", socketToRoom)
-    //     if (room) {
-    //         room = room.filter(id => id !== username);
-    //         users[roomID] = room;
-    //     }
-    // });
+    console.log(`New connection: ${socket.id}`);
     let username = socket.handshake.session.username;
+    if (users[username]) {
+        console.error(`${username} is already connected`);
+        socket.disconnect();
+    }
+
+    users[username] = socket;
+    socket.username = username;
+
     socket.on("join room", roomID => {
-
-        if (users[roomID]) {
-            if(loggedin[roomID].indexOf(username) == -1) {
-                console.log("inside login", loggedin)
-                loggedin[roomID].push(username)
-                users[roomID].push(socket.id);
-
-            }
-            
-                    
-        } else {
-            loggedin[roomID] = [username];
-            users[roomID] = [socket.id];
+        console.log(`${socket.id} has joined room ${roomID}`);
+        if (!rooms[roomID]) {
+            rooms[roomID] = {};
         }
-        socketToRoom[socket.id] = roomID;
-        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
-        console.log("loggedin", loggedin)
-        console.log("users", users)
-        console.log("in room", usersInThisRoom)
-        socket.emit("all users", usersInThisRoom);
+
+        if (rooms[socket.roomID] && rooms[socket.roomID][socket.id]) {
+            socket.in(socket.roomID).emit("user left", socket.id);
+            delete rooms[socket.roomID][socket.id];
+        }
+
+        socket.emit("all users", Object.keys(rooms[roomID]));
+        rooms[roomID][socket.id] = socket;
+        socket.join(roomID);
+        socket.roomID = roomID;
     });
 
     socket.on("sending signal", payload => {
-        console.log("sending signal", payload.callerID)
+        console.log(`${socket.id} starting connection with ${payload.callerID}`);
         io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
     });
 
     socket.on("returning signal", payload => {
-        console.log("receving returned signal", payload.callerID)
-        console.log("receving returned signal", socket.id)
+        console.log(`${socket.id} - ${payload.callerID}: COMPLETE`);
         io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
     });
 
     socket.on('disconnect', () => {
-        console.log("disconnect user")   
-        const roomID = socketToRoom[socket.id];
-        let room = users[roomID];
-        let loggers = loggedin[roomID];
-        if (room) {
-            room = room.filter(id => id !== socket.id);
-            loggers = loggers.filter(id => id !== username);
-            users[roomID] = room;
-            loggedin[roomID] = loggers;
-            delete socketToRoom[socket.id]
-        }
-        socket.broadcast.emit("user left",socket.id);
+        console.log(`${socket.id} has left room ${socket.roomID}`);
+        users[username] = null;
+    
+        if (rooms[socket.roomID]) {
+            if (rooms[socket.roomID][socket.id]) {
+                delete rooms[socket.roomID][socket.id];
+            }
 
-        // const roomID = socketToRoom[socket.id];
-        // let usersinroom = users[roomID];
-        // let loggers = loggedin[roomID]
-        // if (usersinroom) {
-        //     usersinroom = usersinroom.filter(id => id !== socket.id);
-        //     loggers = loggers.filter(id => id !== username);
-        //     users[roomID] = usersinroom;
-        //     loggedin[roomID] = loggers;
-        //     delete socketToRoom[socket.id]
-            
-        // }
-        console.log("users now:", users)
-        console.log("loggedin now:", loggedin)
-        console.log("socketroom", socketToRoom)
-        socket.broadcast.emit("user left",socket.id);
+            if (Object.keys(rooms[socket.roomID]).length) {
+                socket.to(socket.roomID).emit("user left", socket.id);
+            } else {
+                delete rooms[socket.roomID];
+            }
+        }
     });
 
 });
@@ -565,4 +503,3 @@ serverInit().then(()=>webServer.listen(8080));
  *    Availability: https://github.com/dmapper/sharedb-access/issues/8
  *
  ***************************************************************************************/
-
