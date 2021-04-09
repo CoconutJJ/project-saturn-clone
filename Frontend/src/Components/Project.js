@@ -280,7 +280,13 @@ export default function Project() {
             <Grid container>
                 {projectID && documentID ? (
                     <>
-                        <Grid item xs={12} md={12} sm={12}>
+                        <Grid item xs={6} md={12} sm={12}>
+                            <Room
+                                id={projectID}
+                                videoflag={startVideo}
+                            />
+                        </Grid>
+                        <Grid item xs={6} md={12} sm={12}>
                             <CodePad
                                 projectID={projectID}
                                 documentID={documentID}
@@ -292,12 +298,7 @@ export default function Project() {
                                 documentID={documentID}
                             />
                         </Grid>
-                        <Grid item xs={12} md={12} sm={12}>
-                            <Room
-                                id={projectID}
-                                videoflag={startVideo}
-                            />
-                        </Grid>
+
                     </>
                 ) : (
                         <>
