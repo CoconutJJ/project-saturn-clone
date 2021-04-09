@@ -53,6 +53,7 @@ const Room = (props) => {
     const roomID = props.id;
     console.log("roomID", roomID);
     useEffect(() => {console.log("useeffect", peers) });
+    
     useEffect(() => {console.log("videoflag", props.videoflag) });
 
     console.log("hi")
@@ -100,11 +101,12 @@ const Room = (props) => {
                         peer,
                     })
                     const peerObj = {
-                        peer,
-                        peerID: payload.callerID
+                        peerID: payload.callerID,
+                        peer
                     }
                     console.log("paylod caller id", payload.callerID)
                     setPeers(users => [...users, peerObj]);
+                    //setPeers(users => [...new Set(users.push(peerObj))]);
                     console.log("peeers in front 2", peerObj)
                 });
     
@@ -145,7 +147,8 @@ const Room = (props) => {
                 socketRef.current.disconnect();
             }
             
-
+            //replace peersRef with empty
+            peersRef.current = [];
             
             
             
