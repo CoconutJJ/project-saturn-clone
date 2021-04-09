@@ -20,7 +20,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import ShareIcon from "@material-ui/icons/Share";
-
+import VideocamIcon from '@material-ui/icons/Videocam';
 
 const drawerWidth = 240;
 

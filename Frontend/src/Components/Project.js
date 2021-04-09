@@ -11,6 +11,7 @@ import SaturnCat from "../Media/saturn-cat.jpg";
 import CodePad from "./CodePad";
 import SideMenu from "./SideMenu";
 import Terminal from "./Terminal";
+import Room from "./Room";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -28,6 +29,8 @@ export default function Project() {
     const classes = useStyles();
     const [documentID, setDocumentID] = useState("");
     const [documentName, setDocumentName] = useState("");
+
+    const [startVideo, setStartVideo] = React.useState(false);
 
     return (
         <div className={classes.root}>
@@ -48,6 +51,12 @@ export default function Project() {
                             <Terminal
                                 projectID={projectID}
                                 documentID={documentID}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={12} sm={12}>
+                            <Room
+                                id={projectID}
+                                videoflag={startVideo}
                             />
                         </Grid>
                     </>

@@ -35,7 +35,6 @@ var sessionParser = session({
     key: process.env.session_key,
 });
 app.use(sessionParser);
-
 app.use((req, res, next) => {
     if (req.session.username == undefined || req.session.username == null) {
         res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
@@ -69,9 +68,18 @@ app.use("/ql", (req, res) =>
 const webServer = http.createServer(app);
 const wss = new WebSocket.Server({ noServer: true, path:"/codepad"});
 const { Server } = require("socket.io");
-const io = new Server(null, { path: "/pty" });
 
-io.attach(webServer);
+const { Server } = require("socket.io")
+
+const io_term = new Server(null, {path: "/pty"});
+const io_video = new Server(null, {path: "/video"});
+
+io_term.attach(webServer);
+io_video.attach(webServer);
+io_video.use(sharedsession(newsession));
+
+const wss = new WebSocket.Server({ noServer: true, path: "/codepad"});
+
 
 webServer.on("upgrade", (request, socket, head) => {
 
@@ -83,7 +91,7 @@ webServer.on("upgrade", (request, socket, head) => {
 });
 
 
-io.on("connection", async (socket) => {
+io_term.on("connection", async (socket) => {
 
     let sb = new Sandbox("alpine-sandbox");
 
@@ -140,6 +148,122 @@ io.on("connection", async (socket) => {
         }
     );
 });
+
+
+io_video.on('connection', socket => {
+    console.log("new room connection")
+    // let username = socket.handshake.session.username;
+    // socket.on("join room", roomID => {
+    //     console.log("users", users)
+    //     if (users[roomID]) {
+    //         if(users[roomID].indexOf(username) == -1) {
+    //             users[roomID].push(username);
+    //         }
+            
+    //     } else {
+    //         users[roomID] = [username];
+    //     }
+    //     socketToRoom[username] = roomID;
+    //     console.log("sockettoroom", socketToRoom)
+    //     // const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
+    //     const usersInThisRoom = users[roomID];
+    //     console.log("users in server, ", users)
+    //     console.log("usersinthis roomm ", usersInThisRoom)
+    //     socket.emit("all users", usersInThisRoom);
+    // });
+
+    // socket.on("sending signal", payload => {
+    //     console.log("sending signal", payload.callerID)
+    //     io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
+    // });
+
+    // socket.on("returning signal", payload => {
+    //     console.log("receving returned signal", payload.callerID)
+    //     console.log("receving returned signal", username)
+    //     io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: username });
+    // });
+
+    // socket.on('disconnect', () => {
+    //     const roomID = socketToRoom[username];
+    //     let room = users[roomID];
+    //     console.log("room", room)
+    //     console.log("socket to room", socketToRoom)
+    //     if (room) {
+    //         room = room.filter(id => id !== username);
+    //         users[roomID] = room;
+    //     }
+    // });
+    let username = socket.handshake.session.username;
+    socket.on("join room", roomID => {
+
+        if (users[roomID]) {
+            if(loggedin[roomID].indexOf(username) == -1) {
+                console.log("inside login", loggedin)
+                loggedin[roomID].push(username)
+                users[roomID].push(socket.id);
+
+            }
+            
+                    
+        } else {
+            loggedin[roomID] = [username];
+            users[roomID] = [socket.id];
+        }
+        socketToRoom[socket.id] = roomID;
+        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
+        console.log("loggedin", loggedin)
+        console.log("users", users)
+        console.log("in room", usersInThisRoom)
+        socket.emit("all users", usersInThisRoom);
+    });
+
+    socket.on("sending signal", payload => {
+        console.log("sending signal", payload.callerID)
+        io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
+    });
+
+    socket.on("returning signal", payload => {
+        console.log("receving returned signal", payload.callerID)
+        console.log("receving returned signal", socket.id)
+        io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
+    });
+
+    socket.on('disconnect', () => {
+        console.log("disconnect user")   
+        const roomID = socketToRoom[socket.id];
+        let room = users[roomID];
+        let loggers = loggedin[roomID];
+        if (room) {
+            room = room.filter(id => id !== socket.id);
+            loggers = loggers.filter(id => id !== username);
+            users[roomID] = room;
+            loggedin[roomID] = loggers;
+        }
+        socket.broadcast.emit("user left",socket.id);
+
+        // const roomID = socketToRoom[socket.id];
+        // let usersinroom = users[roomID];
+        // let loggers = loggedin[roomID]
+        // if (usersinroom) {
+        //     usersinroom = usersinroom.filter(id => id !== socket.id);
+        //     loggers = loggers.filter(id => id !== username);
+        //     users[roomID] = usersinroom;
+        //     loggedin[roomID] = loggers;
+        //     delete socketToRoom[socket.id]
+            
+        // }
+        console.log("users now:", users)
+        console.log("loggedin now:", loggedin)
+        console.log("socketroom", socketToRoom)
+        socket.broadcast.emit("user left",socket.id);
+    });
+
+});
+
+
+
+
+
 
 wss.on("connection", function (ws, req) {
     sessionParser(req, {}, function () {
