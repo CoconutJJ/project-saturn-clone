@@ -27,7 +27,6 @@ const Terminal = ({ projectID, documentID }) => {
     }, [socket]);
 
     useEffect(() => {
-        
         setSocket(io.connect("ws://" + window.location.host, { path: "/pty" }));
 
         setBuffer(new XTermBuffer(xtermRef.current.terminal));
@@ -48,7 +47,7 @@ const Terminal = ({ projectID, documentID }) => {
         const code = data.charCodeAt(0);
         switch (code) {
             case 13:
-                socket.emit("setfs", projectID)
+                socket.emit("setfs", projectID);
                 socket.emit("command", buffer.line + "\n");
                 buffer.newline();
                 break;

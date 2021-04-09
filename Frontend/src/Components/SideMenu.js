@@ -9,10 +9,10 @@ import {
     ListItemText,
     TextField,
     Toolbar,
-    ButtonBase
+    ButtonBase,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from "@material-ui/icons/Close";
 import React, { useEffect, useState, Fragment } from "react";
 import Document from "../apis/document";
 import ProjectAPI from "../apis/project";
@@ -20,7 +20,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import ShareIcon from "@material-ui/icons/Share";
-import VideocamIcon from '@material-ui/icons/Videocam';
+import VideocamIcon from "@material-ui/icons/Videocam";
 
 const drawerWidth = 240;
 
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
         }),
     },
     drawerContainer: {
-        marginLeft:50,
+        marginLeft: 50,
         overflow: "auto",
     },
     toolbar: {
@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function SideMenu({ projectID, setDocumentID, setDocumentName }) {
+export default function SideMenu({ projectID, setDocumentID, setDocumentName, setStartVideo }) {
     const classes = useStyles();
     const [documents, setDocuments] = useState([]);
     const [guests, setGuests] = useState([]);
@@ -55,9 +55,6 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
     const [newGuestUsername, setNewGuestUsername] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [drawerState, setDrawerState] = useState("");
-    useEffect(() => {
-        console.log(drawerOpen, drawerState);
-    })
 
     const updateDrawer = (newState) => {
         setDrawerOpen(!(newState == drawerState && drawerOpen));
@@ -71,7 +68,9 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
             let guestData = await ProjectAPI.getGuests(parseInt(projectID));
             setGuests(guestData);
         } catch (e) {
-            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
+            document.dispatchEvent(
+                new CustomEvent("custom-onError", { detail: { error: e } })
+            );
         }
     };
 
@@ -89,9 +88,7 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
                             value={newDocumentName}
                             label="Document name"
                             variant="outlined"
-                            onChange={(e) =>
-                                setNewDocumentName(e.target.value)
-                            }
+                            onChange={(e) => setNewDocumentName(e.target.value)}
                         />
                         <Button
                             disabled={!newDocumentName}
@@ -105,12 +102,16 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
                                     );
                                     await reloadProject();
                                 } catch (e) {
-                                    document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
+                                    document.dispatchEvent(
+                                        new CustomEvent("custom-onError", {
+                                            detail: { error: e },
+                                        })
+                                    );
                                 }
                             }}
                         >
                             Create
-                </Button>
+                        </Button>
                     </FormControl>
                 </ListItem>
                 <ListItem>
@@ -129,8 +130,8 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
                     </ListItem>
                 ))}
             </List>
-        )
-    }
+        );
+    };
 
     const renderDrawerShare = () => {
         return (
@@ -160,12 +161,16 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
                                         setNewGuestUsername("");
                                         await reloadProject();
                                     } catch (e) {
-                                        document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
+                                        document.dispatchEvent(
+                                            new CustomEvent("custom-onError", {
+                                                detail: { error: e },
+                                            })
+                                        );
                                     }
                                 }}
                             >
                                 Share
-                        </Button>
+                            </Button>
                         </FormControl>
                     </ListItem>
                 </List>
@@ -175,34 +180,50 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
                     {guests.map(({ uname }) => (
                         <ListItem key={uname}>
                             <ListItemText primary={uname} />
-                            <IconButton onClick={() => {
-                                document.dispatchEvent(new CustomEvent("custom-showDialog",
-                                    {
-                                        detail: {
-                                            dialogTitle: "Remove Participant",
-                                            dialogMessage: `Are you sure you want to remove participant ${uname}?`,
-                                            dialogAgree: async () => {
-                                                try {
-                                                    await ProjectAPI.unShareProject(uname, parseInt(projectID));
-                                                    await reloadProject()
-                                                } catch (e) {
-                                                    document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
-                                                }
+                            <IconButton
+                                onClick={() => {
+                                    document.dispatchEvent(
+                                        new CustomEvent("custom-showDialog", {
+                                            detail: {
+                                                dialogTitle:
+                                                    "Remove Participant",
+                                                dialogMessage: `Are you sure you want to remove participant ${uname}?`,
+                                                dialogAgree: async () => {
+                                                    try {
+                                                        await ProjectAPI.unShareProject(
+                                                            uname,
+                                                            parseInt(projectID)
+                                                        );
+                                                        await reloadProject();
+                                                    } catch (e) {
+                                                        document.dispatchEvent(
+                                                            new CustomEvent(
+                                                                "custom-onError",
+                                                                {
+                                                                    detail: {
+                                                                        error: e,
+                                                                    },
+                                                                }
+                                                            )
+                                                        );
+                                                    }
+                                                },
+                                                dialogDisAgree: async () => {
+                                                    await reloadProject();
+                                                },
                                             },
-                                            dialogDisAgree: async () => {
-                                                await reloadProject();
-                                            }
-                                        }
-                                    }))
-                            }}  >
+                                        })
+                                    );
+                                }}
+                            >
                                 <CloseIcon />
                             </IconButton>
                         </ListItem>
                     ))}
                 </List>
             </Fragment>
-        )
-    }
+        );
+    };
 
     const drawerStateToRender = {
         documents: renderDrawerDocuments,
@@ -212,30 +233,23 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
 
     return (
         <Fragment>
-            {
-                drawerOpen && (
-                    <Drawer
-                        className={classes.drawer}
-                        variant="permanent"
-                    >
-                        <div className={classes.toolbar}>
-                            <IconButton onClick={() => setDrawerOpen((x) => !x)}>
-                                {!drawerOpen ? (
-                                    <ChevronRightIcon />
-                                ) : (
-                                        <ChevronLeftIcon />
-                                    )}
-                            </IconButton>
-                        </div>
-                        <Divider />
-                        <div className={classes.drawerContainer}>
-                            {drawerOpen &&
-                                (drawerStateToRender[drawerState]())
-                            }
-                        </div>
-                    </Drawer>
-                )
-            }
+            {drawerOpen && (
+                <Drawer className={classes.drawer} variant="permanent">
+                    <div className={classes.toolbar}>
+                        <IconButton onClick={() => setDrawerOpen((x) => !x)}>
+                            {!drawerOpen ? (
+                                <ChevronRightIcon />
+                            ) : (
+                                <ChevronLeftIcon />
+                            )}
+                        </IconButton>
+                    </div>
+                    <Divider />
+                    <div className={classes.drawerContainer}>
+                        {drawerOpen && drawerStateToRender[drawerState]()}
+                    </div>
+                </Drawer>
+            )}
             <Drawer variant="permanent">
                 <div className={classes.toolbar} />
                 <Divider />
@@ -250,10 +264,15 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
                             <ShareIcon />
                         </ButtonBase>
                     </ListItem>
+                    <ListItem>
+                        <ButtonBase onClick={() => setStartVideo((x) => !x)}>
+                            <VideocamIcon />
+                        </ButtonBase>
+                    </ListItem>
                 </List>
             </Drawer>
         </Fragment>
-    )
+    );
 }
 
 //Citation

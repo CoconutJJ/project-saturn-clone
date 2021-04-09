@@ -18,6 +18,7 @@ const Document = require("./models/document");
 const Sandbox = require("./models/sandbox");
 const shareDb = require("./models/sharedb")
 const setShareDbAccess = require("./models/sharedb-access");
+const sharedsession = require("express-socket.io-session");
 require('dotenv').config();
 
 app.use(morgan("dev"));
@@ -68,21 +69,13 @@ app.use("/ql", (req, res) =>
 const webServer = http.createServer(app);
 const wss = new WebSocket.Server({ noServer: true, path:"/codepad"});
 const { Server } = require("socket.io");
-
-const { Server } = require("socket.io")
-
-const io_term = new Server(null, {path: "/pty"});
+const io = new Server(null, { path: "/pty" });
 const io_video = new Server(null, {path: "/video"});
-
-io_term.attach(webServer);
+io.attach(webServer);
 io_video.attach(webServer);
-io_video.use(sharedsession(newsession));
-
-const wss = new WebSocket.Server({ noServer: true, path: "/codepad"});
-
-
+io_video.use(sharedsession(sessionParser));
 webServer.on("upgrade", (request, socket, head) => {
-
+    
     if (request.url.startsWith("/codepad")) {
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request);
@@ -91,9 +84,10 @@ webServer.on("upgrade", (request, socket, head) => {
 });
 
 
-io_term.on("connection", async (socket) => {
+io.on("connection", async (socket) => {
 
     let sb = new Sandbox("alpine-sandbox");
+
 
     let stream = await sb.launchSHShell();
 
@@ -149,122 +143,65 @@ io_term.on("connection", async (socket) => {
     );
 });
 
+const users = {};
+const rooms = {};
 
 io_video.on('connection', socket => {
-    console.log("new room connection")
-    // let username = socket.handshake.session.username;
-    // socket.on("join room", roomID => {
-    //     console.log("users", users)
-    //     if (users[roomID]) {
-    //         if(users[roomID].indexOf(username) == -1) {
-    //             users[roomID].push(username);
-    //         }
-            
-    //     } else {
-    //         users[roomID] = [username];
-    //     }
-    //     socketToRoom[username] = roomID;
-    //     console.log("sockettoroom", socketToRoom)
-    //     // const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
-    //     const usersInThisRoom = users[roomID];
-    //     console.log("users in server, ", users)
-    //     console.log("usersinthis roomm ", usersInThisRoom)
-    //     socket.emit("all users", usersInThisRoom);
-    // });
-
-    // socket.on("sending signal", payload => {
-    //     console.log("sending signal", payload.callerID)
-    //     io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
-    // });
-
-    // socket.on("returning signal", payload => {
-    //     console.log("receving returned signal", payload.callerID)
-    //     console.log("receving returned signal", username)
-    //     io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: username });
-    // });
-
-    // socket.on('disconnect', () => {
-    //     const roomID = socketToRoom[username];
-    //     let room = users[roomID];
-    //     console.log("room", room)
-    //     console.log("socket to room", socketToRoom)
-    //     if (room) {
-    //         room = room.filter(id => id !== username);
-    //         users[roomID] = room;
-    //     }
-    // });
+    console.log(`New connection: ${socket.id}`);
     let username = socket.handshake.session.username;
+    if (users[username]) {
+        console.error(`${username} is already connected`);
+        socket.disconnect();
+    }
+
+    users[username] = socket;
+    socket.username = username;
+
     socket.on("join room", roomID => {
-
-        if (users[roomID]) {
-            if(loggedin[roomID].indexOf(username) == -1) {
-                console.log("inside login", loggedin)
-                loggedin[roomID].push(username)
-                users[roomID].push(socket.id);
-
-            }
-            
-                    
-        } else {
-            loggedin[roomID] = [username];
-            users[roomID] = [socket.id];
+        console.log(`${socket.id} has joined room ${roomID}`);
+        if (!rooms[roomID]) {
+            rooms[roomID] = {};
         }
-        socketToRoom[socket.id] = roomID;
-        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
-        console.log("loggedin", loggedin)
-        console.log("users", users)
-        console.log("in room", usersInThisRoom)
-        socket.emit("all users", usersInThisRoom);
+
+        if (rooms[socket.roomID] && rooms[socket.roomID][socket.id]) {
+            socket.in(socket.roomID).emit("user left", socket.id);
+            delete rooms[socket.roomID][socket.id];
+        }
+
+        socket.emit("all users", Object.keys(rooms[roomID]));
+        rooms[roomID][socket.id] = socket;
+        socket.join(roomID);
+        socket.roomID = roomID;
     });
 
     socket.on("sending signal", payload => {
-        console.log("sending signal", payload.callerID)
+        console.log(`${socket.id} starting connection with ${payload.callerID}`);
         io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
     });
 
     socket.on("returning signal", payload => {
-        console.log("receving returned signal", payload.callerID)
-        console.log("receving returned signal", socket.id)
+        console.log(`${socket.id} - ${payload.callerID}: COMPLETE`);
         io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
     });
 
     socket.on('disconnect', () => {
-        console.log("disconnect user")   
-        const roomID = socketToRoom[socket.id];
-        let room = users[roomID];
-        let loggers = loggedin[roomID];
-        if (room) {
-            room = room.filter(id => id !== socket.id);
-            loggers = loggers.filter(id => id !== username);
-            users[roomID] = room;
-            loggedin[roomID] = loggers;
-        }
-        socket.broadcast.emit("user left",socket.id);
+        console.log(`${socket.id} has left room ${socket.roomID}`);
+        users[username] = null;
+    
+        if (rooms[socket.roomID]) {
+            if (rooms[socket.roomID][socket.id]) {
+                delete rooms[socket.roomID][socket.id];
+            }
 
-        // const roomID = socketToRoom[socket.id];
-        // let usersinroom = users[roomID];
-        // let loggers = loggedin[roomID]
-        // if (usersinroom) {
-        //     usersinroom = usersinroom.filter(id => id !== socket.id);
-        //     loggers = loggers.filter(id => id !== username);
-        //     users[roomID] = usersinroom;
-        //     loggedin[roomID] = loggers;
-        //     delete socketToRoom[socket.id]
-            
-        // }
-        console.log("users now:", users)
-        console.log("loggedin now:", loggedin)
-        console.log("socketroom", socketToRoom)
-        socket.broadcast.emit("user left",socket.id);
+            if (Object.keys(rooms[socket.roomID]).length) {
+                socket.to(socket.roomID).emit("user left", socket.id);
+            } else {
+                delete rooms[socket.roomID];
+            }
+        }
     });
 
 });
-
-
-
-
-
-
 wss.on("connection", function (ws, req) {
     sessionParser(req, {}, function () {
         if (req.session.username) {
@@ -291,7 +228,6 @@ const serverInit = async () => {
 serverInit().then(() => webServer.listen(8080)).then(()=>console.log("Server started!"));
 
 //Citation
-
 //createDocInShareDb() and wss configurations are modifications from the shareDB textarea example
 /***************************************************************************************
  *    Title: Collaborative Textarea with ShareDB
@@ -307,5 +243,15 @@ serverInit().then(() => webServer.listen(8080)).then(()=>console.log("Server sta
  *    Author: julienmachon
  *    Date: 2018-02-11
  *    Availability: https://github.com/dmapper/sharedb-access/issues/8
+ *
+ ***************************************************************************************/
+
+//Citation
+// Socket layout is inspired and from Group Video Final Example
+/***************************************************************************************
+ *    Title: Group Video Call
+ *    Author: coding-with-chaim
+ *    Date: 2020-05-14
+ *    Availability: https://github.com/coding-with-chaim/group-video-final
  *
  ***************************************************************************************/

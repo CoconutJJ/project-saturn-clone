@@ -4,18 +4,18 @@ import {
     Card,
     CardContent,
     Typography,
-    Paper, Divider
+    Paper,
+    Divider,
 } from "@material-ui/core";
 import { useHistory, useParams } from "react-router-dom";
 import pyLogo from "../Media/python-logo.png";
 import cLogo from "../Media/c-logo.png";
-import AccountBoxIcon from '@material-ui/icons/AccountBox';
-import TitleIcon from '@material-ui/icons/Title';
-import {envToLabel,envToIcon} from './ProjectCreate';
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
+import TitleIcon from "@material-ui/icons/Title";
+import { envToLabel, envToIcon } from "./ProjectCreate";
 
 function ProjectCard({ name, owner, env, id }) {
     const history = useHistory();
-
 
     return (
         <ButtonBase
@@ -39,28 +39,31 @@ function ProjectCard({ name, owner, env, id }) {
                         ></div>
                         {envToLabel[env]}
                     </Paper>
-                    <Typography style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: "center",
-                        flexWrap: 'wrap',
-                        fontWeight: "bold"
-                    }}>
+                    <Typography
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            fontWeight: "bold",
+                        }}
+                    >
                         {`${name}`}
                     </Typography>
-                    <Typography style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: "center",
-                        flexWrap: 'wrap',
-                    }}>
+                    <Typography
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                        }}
+                    >
                         <AccountBoxIcon /> {`${owner}`}
                     </Typography>
                 </CardContent>
             </Card>
         </ButtonBase>
     );
-
 }
 
 export default ProjectCard;

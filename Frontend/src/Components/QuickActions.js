@@ -5,7 +5,7 @@ import {
     ButtonBase,
     Typography,
     Paper,
-    Grid
+    Grid,
 } from "@material-ui/core";
 import videoIcon from "../Media/video-chat.png";
 import termIcon from "../Media/code-terminal.png";

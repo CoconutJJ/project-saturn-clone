@@ -6,7 +6,7 @@ import {
     TextField,
     Button,
     Grid,
-    Paper
+    Paper,
 } from "@material-ui/core";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
@@ -14,11 +14,10 @@ import pyLogo from "../Media/python-logo.png";
 import cLogo from "../Media/c-logo.png";
 import Project from "../apis/project";
 
-export const envToIcon = { "python": pyLogo, "c": cLogo }
-export const envToLabel = { "python": "PYTHON 3.XX", "c": "GCC C" }
+export const envToIcon = { python: pyLogo, c: cLogo };
+export const envToLabel = { python: "PYTHON 3.XX", c: "GCC C" };
 
 function ProjectCreate() {
-
     const [newProjectEnv, setNewProjectEnv] = useState(null);
     const [newProjectName, setNewProjectName] = useState("");
 
@@ -26,14 +25,15 @@ function ProjectCreate() {
         setNewProjectEnv(newEnv);
     };
 
-
     const createProject = async () => {
         try {
-            await Project.createProject(newProjectName, newProjectEnv)
+            await Project.createProject(newProjectName, newProjectEnv);
             setNewProjectName("");
             document.dispatchEvent(new CustomEvent("custom-onCreateProject"));
         } catch (e) {
-            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }));
+            document.dispatchEvent(
+                new CustomEvent("custom-onError", { detail: { error: e } })
+            );
         }
     };
 
@@ -58,29 +58,29 @@ function ProjectCreate() {
                             onChange={handleEnvSelection}
                             aria-label="New project environment"
                         >
-                            {
-                                Object.keys(envToIcon).map((env) => {
-                                    return (
-                                        <ToggleButton value={env} key={env}>
-                                            {/* https://iconscout.com/icon/c-programming */}
-                                            {/* https://iconscout.com/icon/c-programming */}
-                                            <Paper>
-                                                <div
-                                                    style={{
-                                                        backgroundImage: `url(${envToIcon[env]})`,
-                                                        backgroundSize: "contain",
-                                                        backgroundRepeat: "no-repeat",
-                                                        backgroundPosition: "center",
-                                                        height: "50px",
-                                                        width: "150px",
-                                                    }}
-                                                ></div>
-                                                {envToLabel[env]}
-                                            </Paper>
-                                        </ToggleButton>
-                                    )
-                                })
-                            }
+                            {Object.keys(envToIcon).map((env) => {
+                                return (
+                                    <ToggleButton value={env} key={env}>
+                                        {/* https://iconscout.com/icon/c-programming */}
+                                        {/* https://iconscout.com/icon/c-programming */}
+                                        <Paper>
+                                            <div
+                                                style={{
+                                                    backgroundImage: `url(${envToIcon[env]})`,
+                                                    backgroundSize: "contain",
+                                                    backgroundRepeat:
+                                                        "no-repeat",
+                                                    backgroundPosition:
+                                                        "center",
+                                                    height: "50px",
+                                                    width: "150px",
+                                                }}
+                                            ></div>
+                                            {envToLabel[env]}
+                                        </Paper>
+                                    </ToggleButton>
+                                );
+                            })}
                         </ToggleButtonGroup>
                     </Grid>
                     <Grid item>

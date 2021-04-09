@@ -21,9 +21,8 @@ function CodePad({ projectID, documentID }) {
         if (!editor) return;
         window.addEventListener("resize", () => {
             editor.layout();
-        })
-
-    }, [editor])
+        });
+    }, [editor]);
 
     useEffect(() => {
         if (!editor) return;
@@ -33,7 +32,9 @@ function CodePad({ projectID, documentID }) {
     }, [code]);
 
     useEffect(() => {
-        socket = new ReconnectingWebSocket(`ws://${window.location.host}/codepad`);
+        socket = new ReconnectingWebSocket(
+            `ws://${window.location.host}/codepad`
+        );
         connection = new sharedb.Connection(socket);
         subscribeDoc();
         return () => {
@@ -43,7 +44,6 @@ function CodePad({ projectID, documentID }) {
     }, [projectID, documentID]);
 
     function subscribeDoc() {
-    
         let doc = connection.get(projectID.toString(), documentID.toString());
         doc.subscribe(function (err) {
             if (err) throw err;
@@ -73,24 +73,23 @@ function CodePad({ projectID, documentID }) {
     }
 
     return (
-        <div key={documentID}>
-            <div>
-                <MonacoEditor
-                    width="100%"
-                    height="45vh"
-                    language="javascript"
-                    theme="vs-dark"
-                    onChange={onChange}
-                    editorDidMount={editorDidMount}
-                />
-                <textarea
-                    style={{
-                        display: "none",
-                    }}
-                    ref={textArea}
-                />
-            </div>
+        <div key={documentID} style={{width:"100%"}} >
+            <MonacoEditor
+                width="100%"
+                height="45vh"
+                language="javascript"
+                theme="vs-dark"
+                onChange={onChange}
+                editorDidMount={editorDidMount}
+            />
+            <textarea
+                style={{
+                    display: "none",
+                }}
+                ref={textArea}
+            />
         </div>
+
     );
 }
 export default CodePad;

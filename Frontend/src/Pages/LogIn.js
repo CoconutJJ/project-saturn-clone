@@ -9,6 +9,8 @@ import User from "../apis/user"
 function LogIn() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
+    
+    let [isError, setError] = useState(false);
 
     let validEntries = () => {
         return username.length > 0 && password.length > 0;
@@ -65,6 +67,7 @@ function LogIn() {
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
                                     <TextField
+                                        error={isError}
                                         id="input-with-icon-grid"
                                         label="Username"
                                         value={username}
@@ -79,6 +82,7 @@ function LogIn() {
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
                                     <TextField
+                                        error={isError}
                                         id="input-with-icon-grid"
                                         label="Password"
                                         value={password}
