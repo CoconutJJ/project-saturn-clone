@@ -246,3 +246,13 @@ serverInit().then(() => webServer.listen(8080)).then(()=>console.log("Server sta
  *    Availability: https://github.com/dmapper/sharedb-access/issues/8
  *
  ***************************************************************************************/
+
+//Citation
+// Socket layout is inspired and from Group Video Final Example
+/***************************************************************************************
+ *    Title: Group Video Call
+ *    Author: coding-with-chaim
+ *    Date: 2020-05-14
+ *    Availability: https://github.com/coding-with-chaim/group-video-final
+ *
+ ***************************************************************************************/

@@ -16,22 +16,6 @@ const StyledVideo = styled.video`
     padding-top: 20px;
 `;
 
-// const Container = styled.div`
-//     padding: 20px;
-//     display: flex;
-//     height: 50vh;
-//     width: 20%;
-//     margin: auto;
-//     flex-wrap: wrap;
-// flex-direction: column;
-// `;
-
-// const StyledVideo = styled.video`
-//     height: 40%;
-//     width: 50%;
-//     padding-top: 20px;
-// `;
-
 const Video = (props) => {
     const ref = useRef();
     console.log("hi")
@@ -189,3 +173,13 @@ const Room = (props) => {
 };
 
 export default Room;
+
+//Citation
+// Styles and Connection layout code is from Group Video Final example
+/***************************************************************************************
+ *    Title: Group Video Call
+ *    Author: coding-with-chaim
+ *    Date: 2020-05-14
+ *    Availability: https://github.com/coding-with-chaim/group-video-final
+ *
+ ***************************************************************************************/
