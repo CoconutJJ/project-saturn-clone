@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
     },
     content: {
-        marginLeft:50,
+        marginLeft:70,
         flexGrow: 1,
         padding: theme.spacing(3),
     },
