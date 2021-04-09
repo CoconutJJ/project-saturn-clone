@@ -75,7 +75,7 @@ const Room = (props) => {
                 stream => {
                     // Initialization step
                     socketRef.current.on("all users", users => {
-                        console.log("owo", users);
+                        
                         setPeers(users.map(peerID => {
                             const peer = createPeer(peerID, socketRef.current.id, stream);
                             return { peerID, peer };
@@ -84,7 +84,7 @@ const Room = (props) => {
         
                     // New user while code is still running
                     socketRef.current.on("user joined", payload => {
-                        console.log("uwu", payload);
+                        
                         const peer = addPeer(payload.signal, payload.callerID, stream);
                         const peerObj = {
                             peerID: payload.callerID,
@@ -97,7 +97,7 @@ const Room = (props) => {
                     socketRef.current.on("user left", userID => {
                         setPeers(_peers => {
                             const newPeers = _peers.filter(p => {
-                                console.log(userID, p.peerID);
+                                
                                 const isPeer = p.peerID === userID;
                                 if (isPeer) {
                                     p.peer.destroy();
