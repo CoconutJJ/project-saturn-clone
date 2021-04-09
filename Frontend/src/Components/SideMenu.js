@@ -20,7 +20,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import ShareIcon from "@material-ui/icons/Share";
-
+import VideocamIcon from '@material-ui/icons/Videocam';
 
 const drawerWidth = 240;
 
@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function SideMenu({ projectID, setDocumentID, setDocumentName }) {
+export default function SideMenu({ projectID, setDocumentID, setDocumentName, setStartVideo }) {
     const classes = useStyles();
     const [documents, setDocuments] = useState([]);
     const [guests, setGuests] = useState([]);
@@ -55,6 +55,7 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
     const [newGuestUsername, setNewGuestUsername] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [drawerState, setDrawerState] = useState("");
+
     useEffect(() => {
         console.log(drawerOpen, drawerState);
     })
@@ -248,6 +249,11 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName }) 
                     <ListItem>
                         <ButtonBase onClick={() => updateDrawer("share")}>
                             <ShareIcon />
+                        </ButtonBase>
+                    </ListItem>
+                    <ListItem>
+                        <ButtonBase onClick={() => setStartVideo((x) => !x)}>
+                            <VideocamIcon />
                         </ButtonBase>
                     </ListItem>
                 </List>

@@ -18,6 +18,7 @@ const Document = require("./models/document");
 const Sandbox = require("./models/sandbox");
 const shareDb = require("./models/sharedb")
 const setShareDbAccess = require("./models/sharedb-access");
+const sharedsession = require("express-socket.io-session");
 require('dotenv').config();
 
 app.use(morgan("dev"));
@@ -70,9 +71,10 @@ const webServer = http.createServer(app);
 const wss = new WebSocket.Server({ noServer: true, path:"/codepad"});
 const { Server } = require("socket.io");
 const io = new Server(null, { path: "/pty" });
-
+const io_video = new Server(null, {path: "/video"});
 io.attach(webServer);
-
+io_video.attach(webServer);
+io_video.use(sharedsession(sessionParser));
 webServer.on("upgrade", (request, socket, head) => {
     
     if (request.url.startsWith("/codepad")) {
@@ -86,6 +88,7 @@ webServer.on("upgrade", (request, socket, head) => {
 io.on("connection", async (socket) => {
 
     let sb = new Sandbox("alpine-sandbox");
+
 
     let stream = await sb.launchSHShell();
 
@@ -141,6 +144,65 @@ io.on("connection", async (socket) => {
     );
 });
 
+const users = {};
+const rooms = {};
+
+io_video.on('connection', socket => {
+    console.log(`New connection: ${socket.id}`);
+    let username = socket.handshake.session.username;
+    if (users[username]) {
+        console.error(`${username} is already connected`);
+        socket.disconnect();
+    }
+
+    users[username] = socket;
+    socket.username = username;
+
+    socket.on("join room", roomID => {
+        console.log(`${socket.id} has joined room ${roomID}`);
+        if (!rooms[roomID]) {
+            rooms[roomID] = {};
+        }
+
+        if (rooms[socket.roomID] && rooms[socket.roomID][socket.id]) {
+            socket.in(socket.roomID).emit("user left", socket.id);
+            delete rooms[socket.roomID][socket.id];
+        }
+
+        socket.emit("all users", Object.keys(rooms[roomID]));
+        rooms[roomID][socket.id] = socket;
+        socket.join(roomID);
+        socket.roomID = roomID;
+    });
+
+    socket.on("sending signal", payload => {
+        console.log(`${socket.id} starting connection with ${payload.callerID}`);
+        io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
+    });
+
+    socket.on("returning signal", payload => {
+        console.log(`${socket.id} - ${payload.callerID}: COMPLETE`);
+        io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`${socket.id} has left room ${socket.roomID}`);
+        users[username] = null;
+    
+        if (rooms[socket.roomID]) {
+            if (rooms[socket.roomID][socket.id]) {
+                delete rooms[socket.roomID][socket.id];
+            }
+
+            if (Object.keys(rooms[socket.roomID]).length) {
+                socket.to(socket.roomID).emit("user left", socket.id);
+            } else {
+                delete rooms[socket.roomID];
+            }
+        }
+    });
+
+});
 wss.on("connection", function (ws, req) {
     sessionParser(req, {}, function () {
         if (req.session.username) {
@@ -167,7 +229,6 @@ const serverInit = async () => {
 serverInit().then(() => webServer.listen(8080)).then(()=>console.log("Server started!"));
 
 //Citation
-
 //createDocInShareDb() and wss configurations are modifications from the shareDB textarea example
 /***************************************************************************************
  *    Title: Collaborative Textarea with ShareDB

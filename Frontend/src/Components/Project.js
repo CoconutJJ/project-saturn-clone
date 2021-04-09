@@ -11,6 +11,7 @@ import SaturnCat from "../Media/saturn-cat.jpg";
 import CodePad from "./CodePad";
 import SideMenu from "./SideMenu";
 import Terminal from "./Terminal";
+import Room from "./Room";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -28,28 +29,38 @@ export default function Project() {
     const classes = useStyles();
     const [documentID, setDocumentID] = useState("");
     const [documentName, setDocumentName] = useState("");
+    const [startVideo, setStartVideo] = useState(false);
 
     return (
         <div className={classes.root}>
             <CssBaseline />
-            <SideMenu projectID={projectID} setDocumentID={setDocumentID} setDocumentName={setDocumentName} />
+            <SideMenu setStartVideo={setStartVideo} projectID={projectID} setDocumentID={setDocumentID} setDocumentName={setDocumentName} />
             <main className={classes.content}>
                 {projectID && documentID ? (
                     <>
                         <Typography variant="h3">{documentName}</Typography>
                         <Divider light />
                         <Grid item xs={12} md={12} sm={12}>
+                            
+                            <Room
+                                id={projectID}
+                                videoflag={startVideo}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={12} sm={12}>
                             <CodePad
                                 projectID={projectID}
                                 documentID={documentID}
                             />
                         </Grid>
+                        
                         <Grid item xs={12} md={12} sm={12}>
                             <Terminal
                                 projectID={projectID}
                                 documentID={documentID}
                             />
                         </Grid>
+
                     </>
                 ) : (
                         <>
