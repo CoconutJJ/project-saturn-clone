@@ -33,7 +33,7 @@ function CodePad({ projectID, documentID }) {
     }, [code]);
 
     useEffect(() => {
-        socket = new ReconnectingWebSocket(`ws://${window.location.host}`);
+        socket = new ReconnectingWebSocket(`ws://${window.location.host}/codepad`);
         connection = new sharedb.Connection(socket);
         subscribeDoc();
         return () => {

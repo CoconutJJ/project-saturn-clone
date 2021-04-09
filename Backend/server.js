@@ -67,6 +67,7 @@ app.use("/ql", (req, res) =>
     })(req, res)
 );
 const webServer = http.createServer(app);
+const wss = new WebSocket.Server({ noServer: true, path:"/codepad"});
 const { Server } = require("socket.io");
 const io = new Server(null, { path: "/pty" });
 
@@ -74,14 +75,13 @@ io.attach(webServer);
 
 webServer.on("upgrade", (request, socket, head) => {
 
-    if (!request.url.startsWith("/pty")) {
+    if (request.url.startsWith("/codepad")) {
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request);
         });
     }
 });
 
-const wss = new WebSocket.Server({ noServer: true });
 
 io.on("connection", async (socket) => {
 
