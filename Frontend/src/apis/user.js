@@ -14,8 +14,16 @@ class User {
                 pword: password,
             }
         );
+        if(data.errors){
+            throw Error(data.errors[0].message);
+        }
 
         return data.data.loginUser;
+    }
+
+    static async logout() {
+        await API.q("query { logoutUser }");
+
     }
 
     /**
@@ -55,7 +63,6 @@ class User {
         let cookies = cookie_string.split(";")
 
         for (let c of cookies) {
-            console.log(c)
             if (c.split("=")[0].trim() == "userdata") return true;
 
         }

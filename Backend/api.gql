@@ -15,6 +15,7 @@ type User {
 
 type Query {
     loginUser(username: String, password: String): Boolean
+    logoutUser: Boolean
     loggedIn: Boolean
     getProjects(relationship: String): [Project]
     getDocuments(projectID: Int): [Document]
@@ -26,4 +27,5 @@ type Mutation {
     createProject(name: String, env: String): Boolean
     shareProject(uname: String, projectID: Int): Boolean
     createDocument(name: String, projectID: Int): Boolean
+    unShareProject(uname: String, projectID: Int): Boolean
 }

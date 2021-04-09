@@ -1,12 +1,12 @@
 const mysql = require("mysql");
-
+require('dotenv').config();
 class Database {
 
     static pool = mysql.createPool({
-        host: "localhost",
-        user: "root",
-        password: "1234",
-        database: "saturn",
+        host: process.env.sql_host,
+        user: process.env.sql_user,
+        password: process.env.sql_password,
+        database: process.env.sql_database,
         connectionLimit: 5
     });
 

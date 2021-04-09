@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { XTerm } from "xterm-for-react";
 import { io } from "socket.io-client";
 import XTermBuffer from "../apis/xterm-buffer";
-import { FitAddon } from 'xterm-addon-fit';
-const Terminal = () => {
-
-
+import { FitAddon } from "xterm-addon-fit";
+const Terminal = ({ projectID, documentID }) => {
     let [socket, setSocket] = useState(null);
     /**
      * @type {XTermBuffer} buffer
@@ -14,20 +12,24 @@ const Terminal = () => {
     const xtermRef = useRef(null);
 
     useEffect(() => {
-        if (!socket) return;        
+        if (!socket) return;
+
         socket.on("response", (data) => {
-            xtermRef.current.terminal.write(data);
+            buffer.set(data);
         });
         socket.on("disconnect", () => {
-            buffer.write("Lost Connection to Server")
-        })
+            buffer.set("Lost Connection to Server");
+        });
+
         return () => {
-            socket.close()
-        }
-    }, [socket])
+            socket.close();
+        };
+    }, [socket]);
 
     useEffect(() => {
-        setSocket(io("ws://localhost:8080/", { path: "/pty" }));
+        
+        setSocket(io.connect("ws://" + window.location.host, { path: "/pty" }));
+
         setBuffer(new XTermBuffer(xtermRef.current.terminal));
         let fit = new FitAddon();
         xtermRef.current.terminal.loadAddon(fit);
@@ -35,7 +37,7 @@ const Terminal = () => {
 
         window.addEventListener("resize", () => {
             fit.fit();
-        })
+        });
     }, []);
 
     /**
@@ -46,7 +48,7 @@ const Terminal = () => {
         const code = data.charCodeAt(0);
         switch (code) {
             case 13:
-                console.log("command");
+                socket.emit("setfs", projectID)
                 socket.emit("command", buffer.line + "\n");
                 buffer.newline();
                 break;
@@ -70,7 +72,7 @@ const Terminal = () => {
             default:
                 buffer.write(data);
                 break;
-         }
+        }
     };
     return <XTerm ref={xtermRef} onData={onData} />;
 };

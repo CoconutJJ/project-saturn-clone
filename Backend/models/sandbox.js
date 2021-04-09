@@ -1,9 +1,8 @@
 const Docker = require("dockerode");
 const fs = require("fs");
 const uuid = require("uuid");
-const stream = require("stream");
+const stream = require("memory-streams");
 const path = require("path");
-const Interrupts = require("../interrupts");
 
 class Sandbox {
     constructor(image) {
@@ -39,6 +38,7 @@ class Sandbox {
             stream: true,
             stdin: true,
             stdout: true,
+            stderr: true,
         });
 
         await this.container.start();
@@ -60,9 +60,6 @@ class Sandbox {
         this.mountPath = path.join(__dirname, uuid.v4());
         fs.mkdirSync(this.mountPath);
 
-        Interrupts.addOnExitJob(() => {
-            this.destroy();
-        });
     }
 
     destroyHostMount() {
@@ -78,9 +75,6 @@ class Sandbox {
 
         await this._run("/bin/sh");
 
-        Interrupts.addOnExitJob(() => {
-            this.destroy();
-        });
 
         return this.stream;
     }
