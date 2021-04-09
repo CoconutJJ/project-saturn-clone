@@ -6,18 +6,31 @@ import styled from "styled-components";
 const Container = styled.div`
     padding: 20px;
     display: flex;
-    width: 90%;
-    margin: auto;
     flex-wrap: wrap;
-    flex-direction: column;
+    
 `;
 
 const StyledVideo = styled.video`
     display: block;
-    height: 40%;
-    width: 50%;
+    height: 20vh;
     padding-top: 20px;
 `;
+
+// const Container = styled.div`
+//     padding: 20px;
+//     display: flex;
+//     height: 50vh;
+//     width: 20%;
+//     margin: auto;
+//     flex-wrap: wrap;
+// flex-direction: column;
+// `;
+
+// const StyledVideo = styled.video`
+//     height: 40%;
+//     width: 50%;
+//     padding-top: 20px;
+// `;
 
 const Video = (props) => {
     const ref = useRef();
