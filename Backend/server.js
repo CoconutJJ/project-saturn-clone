@@ -74,7 +74,7 @@ const io = new Server(null, { path: "/pty" });
 io.attach(webServer);
 
 webServer.on("upgrade", (request, socket, head) => {
-
+    
     if (request.url.startsWith("/codepad")) {
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit("connection", ws, request);
