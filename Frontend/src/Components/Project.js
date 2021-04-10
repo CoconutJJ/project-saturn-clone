@@ -1,13 +1,13 @@
 import { CssBaseline, Divider, Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SaturnCat from "../Media/saturn-cat.jpg";
 import CodePad from "./CodePad";
 import SideMenu from "./SideMenu";
 import Terminal from "./Terminal";
 import Room from "./Room";
-
+import ProjectAPI from "../apis/project";
 const useStyles = makeStyles((theme) => ({
     root: {
         display: "flex",
@@ -21,10 +21,19 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Project() {
     const { id: projectID } = useParams();
+
     const classes = useStyles();
     const [documentID, setDocumentID] = useState("");
     const [documentName, setDocumentName] = useState("");
     const [startVideo, setStartVideo] = useState(false);
+    const [env, setEnv] = useState("");
+    useEffect(() => {
+        const init = async()=>{
+            let data = await ProjectAPI.getProject(parseInt(projectID));
+            setEnv(data.env);
+        }
+        init();
+    }, [])
 
     return (
         <div className={classes.root}>
@@ -36,7 +45,7 @@ export default function Project() {
                         <Typography variant="h3">{documentName}</Typography>
                         <Divider light />
                         <Grid item xs={12} md={12} sm={12}>
-                            
+
                             <Room
                                 id={projectID}
                                 videoflag={startVideo}
@@ -46,9 +55,10 @@ export default function Project() {
                             <CodePad
                                 projectID={projectID}
                                 documentID={documentID}
+                                env={env}
                             />
                         </Grid>
-                        
+
                         <Grid item xs={12} md={12} sm={12}>
                             <Terminal
                                 projectID={projectID}
@@ -57,14 +67,14 @@ export default function Project() {
                         </Grid>
                     </>
                 ) : (
-                    <>
-                        <Grid container justify="center">
-                            <Grid item>
-                                <img src={SaturnCat} width="400" />
+                        <>
+                            <Grid container justify="center">
+                                <Grid item>
+                                    <img src={SaturnCat} width="400" />
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </>
-                )}
+                        </>
+                    )}
             </main>
         </div>
     );

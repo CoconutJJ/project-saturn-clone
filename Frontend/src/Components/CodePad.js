@@ -1,106 +1,42 @@
-import { Typography } from "@material-ui/core";
-import React, { useEffect, useRef, useState } from "react";
-import MonacoEditor from "react-monaco-editor";
+import Editor from "@monaco-editor/react";
+import React, { useEffect } from "react";
+import ShareDBMonaco from "sharedb-monaco";
 
-import ReconnectingWebSocket from "reconnecting-websocket";
-import StringBinding from "sharedb-string-binding";
-import sharedb from "sharedb/lib/client";
-
-function CodePad({ projectID, documentID }) {
-    let socket;
-    /**
-     * @type {sharedb.Connection}
-     */
-    let connection;
-    const uuid = document.cookie.toString();
-    const [code, setCode] = useState("");
-    const [editor, setEditor] = useState(null);
-    const textArea = useRef(null);
-
-    useEffect(() => {
-        if (!editor) return;
-        window.addEventListener("resize", () => {
-            editor.layout();
-        });
-    }, [editor]);
-
-    useEffect(() => {
-        if (!editor) return;
-        const cursorBefore = editor.getSelections();
-        if (editor.getValue() !== code) editor.setValue(code);
-        editor.setSelections(cursorBefore);
-    }, [code]);
-
-    useEffect(() => {
-        socket = new ReconnectingWebSocket(
-            `ws://${window.location.host}/codepad`
-        );
-        connection = new sharedb.Connection(socket);
-        subscribeDoc();
-        return () => {
-            connection.close();
-            socket.close();
-        };
-    }, [projectID, documentID]);
-
-    function subscribeDoc() {
-        let doc = connection.get(projectID.toString(), documentID.toString());
-        doc.subscribe(function (err) {
-            if (err) throw err;
-
-            setCode(doc.data.content);
-
-            doc.on("op", function (op, source) {
-                if (source === uuid) return;
-                setCode(doc.data.content);
-            });
-
-            var binding = new StringBinding(textArea.current, doc, ["content"]);
-
-            binding.setup();
+const envToLang = { "python": "Python", "c": "C++" }
+function CodePad({ projectID, documentID, env }) {
+    function handleEditorDidMount(editor) {
+        let binding = new ShareDBMonaco({ id: documentID.toString(), namespace: projectID.toString(), wsurl: `ws://${window.location.host}/codepad` });
+        binding.on("ready", () => {
+            binding.add(editor, "content");
         });
     }
-
-    function onChange(newValue, e) {
-        textArea.current.value = newValue;
-        textArea.current.dispatchEvent(new Event("input"));
-    }
-
-    function editorDidMount(editor_, monaco_) {
-        setEditor(editor_);
-        editor_.focus();
-        editor_.layout();
-    }
-
+    useEffect(() => console.log(env));
     return (
-        <div key={documentID} style={{width:"100%"}} >
-            <MonacoEditor
-                width="100%"
-                height="45vh"
-                language="javascript"
-                theme="vs-dark"
-                onChange={onChange}
-                editorDidMount={editorDidMount}
-            />
-            <textarea
-                style={{
-                    display: "none",
-                }}
-                ref={textArea}
+        <div key={documentID.toString() + projectID.toString() + env.toString()} style={{ width: "100%" }} >
+            <Editor
+                height="90vh"
+                defaultLanguage={env}
+                onMount={handleEditorDidMount}
             />
         </div>
 
     );
 }
 export default CodePad;
-
 //Citation
 
-//wss configurations are modifications from the shareDB textarea example
+// ShareDBMonaco Usage
 /***************************************************************************************
- *    Title: Collaborative Textarea with ShareDB
- *    Author: Alec Gibson
- *    Date: 2020-04-20
- *    Availability: https://github.com/share/sharedb/tree/master/examples/textarea
- *
+ *    Title: ShareDBMonaco README
+ *    Author: Portatolova
+ *    Date: 2021-01-15
+ *    Availability: https://github.com/codecollab-io/sharedb-monaco#readme
+ ***************************************************************************************/
+
+ // @monaco-editor/react Usage
+/***************************************************************************************
+ *    Title: @monaco-editor/react README
+ *    Author: Portatolova
+ *    Date: 2021-04-02
+ *    Availability: https://github.com/suren-atoyan/monaco-react/blob/master/#readme
  ***************************************************************************************/

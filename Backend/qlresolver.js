@@ -33,13 +33,13 @@ const root = {
             return Error("Internal server error");
         }
     },
-    logoutUser: async ({}, context) => {
+    logoutUser: async ({ }, context) => {
         context.req.session.destroy();
         res.cookie("userdata", "", { maxAge: 0, sameSite: "strict" });
 
         return true;
     },
-    loggedIn: ({}, context) => {
+    loggedIn: ({ }, context) => {
         try {
             return (
                 context.req.session.username !== undefined &&
@@ -101,7 +101,7 @@ const root = {
                 context.req.loggedIn &&
                 (await Project.isOwner(context.req.session.username, projectID))
             ) {
-                let result=  await Project.share(uname, projectID);
+                let result = await Project.share(uname, projectID);
                 if (result.isShared) {
                     return true;
                 } else {
@@ -182,10 +182,19 @@ const root = {
             return Error("Internal server error");
         }
     },
-    getProjects: async ({ relationship }, context) => {
+    getProject: async ({ projectID }, context) => {
+        try {
+            return await Project.getProject(projectID);
+        } catch (e) {
+            console.error(e);
+            context.res.status(500);
+            return Error("Internal server error");
+        }
+    },
+    getUserProjects: async ({ relationship }, context) => {
         try {
             if (context.req.loggedIn) {
-                let data = await Project.get(
+                let data = await Project.getUserProjects(
                     relationship,
                     context.req.session.username
                 );

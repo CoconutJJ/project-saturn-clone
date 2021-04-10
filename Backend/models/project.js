@@ -78,7 +78,7 @@ class Project {
      * @param {string} relationship
      * @param {string} username  
      */
-    static async get(relationship, username) {
+    static async getUserProjects(relationship, username) {
         if (relationship == "owned") {
             let [results, fields] = await Project.db.query(
                 "SELECT * FROM projects WHERE owner = ?",
@@ -94,6 +94,18 @@ class Project {
             return results;
         }
         return [];
+    }
+
+    /**
+     *  Get a details of a project
+     * @param {int} projectID
+     */
+    static async getProject(projectID) {
+
+            let [results, fields] = await Project.db.query(
+                "SELECT * FROM projects WHERE id = ?",
+                [projectID]);
+            return results[0];
     }
 
     /**
@@ -123,7 +135,7 @@ class Project {
      * @param {int} projectID  
      */
     static async isOwner(username, projectID) {
-        let result = await Project.get("owned", username);
+        let result = await Project.getUserProjects("owned", username);
         let project = result.find((x) => x.id == projectID);
         return project != undefined;
     }
@@ -134,7 +146,7 @@ class Project {
      * @param {int} projectID  
      */
     static async isGuest(username, projectID) {
-        let result = await Project.get("shared", username);
+        let result = await Project.getUserProjects("shared", username);
         let project = result.find((x) => x.id == projectID);
         return project != undefined;
     }

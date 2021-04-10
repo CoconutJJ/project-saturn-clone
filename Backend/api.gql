@@ -17,7 +17,8 @@ type Query {
     loginUser(username: String, password: String): Boolean
     logoutUser: Boolean
     loggedIn: Boolean
-    getProjects(relationship: String): [Project]
+    getUserProjects(relationship: String): [Project]
+    getProject(projectID: Int):Project
     getDocuments(projectID: Int): [Document]
     getProjectGuests(projectID: Int): [User]
 }

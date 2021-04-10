@@ -11,7 +11,7 @@ function ProjectList() {
 
     const updateProjectDisplay = async (type) => {
         try{
-            let data = await Project.get(type);
+            let data = await Project.getUserProjects(type);
             setProjectDisplayData(data);
         }catch(e){
             document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }));

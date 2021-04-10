@@ -60,14 +60,28 @@ class Project {
      * Get an array of projects with specific relationship to a user
      * @param {string} relationship
     */
-    static async get(relationship) {
+    static async getUserProjects(relationship) {
         let data = await API.q(
-            `query($relationship: String){ getProjects(relationship: $relationship){name,owner,env,id}}`,
+            `query($relationship: String){ getUserProjects(relationship: $relationship){name,owner,env,id}}`,
             {
                 relationship
             }
         );
-        return data.data.getProjects;
+        return data.data.getUserProjects;
+    }
+
+    /**
+     * Get details of a project
+     * @param {int} projectID
+    */
+    static async getProject(projectID) {
+        let data = await API.q(
+            `query($projectID: Int){ getProject(projectID: $projectID){name,owner,env,id}}`,
+            {
+                projectID
+            }
+        );
+        return data.data.getProject;
     }
 
     /**
