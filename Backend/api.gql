@@ -14,19 +14,19 @@ type User {
 }
 
 type Query {
-    loginUser(username: String, password: String): Boolean
+    loginUser(username: String!, password: String!): Boolean
     logoutUser: Boolean
     loggedIn: Boolean
-    getUserProjects(relationship: String): [Project]
-    getProject(projectID: Int):Project
-    getDocuments(projectID: Int): [Document]
-    getProjectGuests(projectID: Int): [User]
+    getUserProjects(relationship: String!): [Project]
+    getProject(projectID: Int!):Project
+    getDocuments(projectID: Int!): [Document]
+    getProjectGuests(projectID: Int!): [User]
 }
 
 type Mutation {
-    signUpUser(firstname: String, lastname: String, username: String, password: String, email: String): Boolean
-    createProject(name: String, env: String): Boolean
-    shareProject(uname: String, projectID: Int): Boolean
-    createDocument(name: String, projectID: Int): Boolean
-    unShareProject(uname: String, projectID: Int): Boolean
+    signUpUser(firstname: String!, lastname: String!, username: String!, password: String!, email: String!): Boolean
+    createProject(name: String!, env: String!): Boolean
+    shareProject(uname: String!, projectID: Int!): Boolean
+    createDocument(name: String!, projectID: Int!): Boolean
+    unShareProject(uname: String!, projectID: Int!): Boolean
 }

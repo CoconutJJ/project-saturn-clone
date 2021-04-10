@@ -23,6 +23,7 @@ function ProjectCard({ name, owner, env, id }) {
             onClick={() => {
                 history.push(`/projects/${id}`);
             }}
+            style={{margin:10}}
         >
             <Card>
                 <CardContent>

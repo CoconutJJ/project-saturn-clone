@@ -29,18 +29,21 @@ class User {
      */
     static async create(firstname, lastname, username, password, email) {
 
+        let output = {isCreated:false,error:undefined}
         let [hashedPassword, salt] = User._hashPassword(password);
 
         let [results, _] = await User.db.query("SELECT COUNT(*) as count FROM users WHERE uname = ?", [username]);
 
         if (parseInt(results[0].count) > 0) {
-            return false;
+            output.error = new Error("Username is already in use.")
+            return output;
         }
 
         [results, _] = await User.db.query(
             "INSERT INTO users (fname, lname, uname, pword, salt, email) VALUES (?,?,?,?,?,?)",
             [firstname, lastname, username, hashedPassword, salt, email]);
-        return results.affectedRows != 0;
+        output.isCreated = (results.affectedRows != 0);
+        return output;
     }
 
     /**

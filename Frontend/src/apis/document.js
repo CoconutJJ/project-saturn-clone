@@ -9,7 +9,7 @@ class Document {
      */
     static async createDocument(name, projectID) {
         let data = await API.m(
-            `mutation($name: String, $projectID: Int){ createDocument(name: $name, projectID: $projectID)}`,
+            `mutation($name: String!, $projectID: Int!){ createDocument(name: $name, projectID: $projectID)}`,
             {
                 name, projectID
             }
@@ -27,7 +27,7 @@ class Document {
     */
     static async get(projectID) {
         let data = await API.q(
-            `query($projectID: Int){ getDocuments(projectID: $projectID){name,id}}`,
+            `query($projectID: Int!){ getDocuments(projectID: $projectID){name,id}}`,
             {
                 projectID
             }

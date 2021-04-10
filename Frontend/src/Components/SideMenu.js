@@ -47,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
+
 export default function SideMenu({ projectID, setDocumentID, setDocumentName, setStartVideo }) {
     const classes = useStyles();
     const [documents, setDocuments] = useState([]);
@@ -56,9 +57,10 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName, se
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [drawerState, setDrawerState] = useState("");
 
-    const updateDrawer = (newState) => {
+    const updateDrawer = async (newState) => {
         setDrawerOpen(!(newState == drawerState && drawerOpen));
         setDrawerState(newState);
+        await reloadProject();
     };
 
     const reloadProject = async () => {
@@ -75,7 +77,8 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName, se
     };
 
     useEffect(() => {
-        reloadProject();
+        let _ = setInterval(async()=>await reloadProject(),2500);
+        return()=>{clearInterval(_)}
     }, []);
 
     const renderDrawerDocuments = () => {

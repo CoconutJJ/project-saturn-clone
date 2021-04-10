@@ -9,7 +9,7 @@ class Project {
      */
     static async createProject(name, env) {
         let data = await API.m(
-            `mutation($name: String, $env: String){ createProject(name: $name, env: $env)}`,
+            `mutation($name: String!, $env: String!){ createProject(name: $name, env: $env)}`,
             {
                 name, env
             }
@@ -27,7 +27,7 @@ class Project {
      */
     static async shareProject(uname, projectID) {
         let data = await API.m(
-            `mutation($uname: String, $projectID: Int){ shareProject(uname: $uname, projectID: $projectID)}`,
+            `mutation($uname: String!, $projectID: Int!){ shareProject(uname: $uname, projectID: $projectID)}`,
             {
                 uname, projectID
             }
@@ -45,7 +45,7 @@ class Project {
      */
     static async unShareProject(uname, projectID) {
         let data = await API.m(
-            `mutation($uname: String, $projectID: Int){ unShareProject(uname: $uname, projectID: $projectID)}`,
+            `mutation($uname: String!, $projectID: Int!){ unShareProject(uname: $uname, projectID: $projectID)}`,
             {
                 uname, projectID
             }
@@ -62,7 +62,7 @@ class Project {
     */
     static async getUserProjects(relationship) {
         let data = await API.q(
-            `query($relationship: String){ getUserProjects(relationship: $relationship){name,owner,env,id}}`,
+            `query($relationship: String!){ getUserProjects(relationship: $relationship){name,owner,env,id}}`,
             {
                 relationship
             }
@@ -76,7 +76,7 @@ class Project {
     */
     static async getProject(projectID) {
         let data = await API.q(
-            `query($projectID: Int){ getProject(projectID: $projectID){name,owner,env,id}}`,
+            `query($projectID: Int!){ getProject(projectID: $projectID){name,owner,env,id}}`,
             {
                 projectID
             }
@@ -90,7 +90,7 @@ class Project {
 */
     static async getGuests(projectID) {
         let data = await API.q(
-            `query($projectID: Int){ getProjectGuests(projectID: $projectID){uname}}`,
+            `query($projectID: Int!){ getProjectGuests(projectID: $projectID){uname}}`,
             {
                 projectID
             }

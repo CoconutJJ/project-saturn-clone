@@ -161,7 +161,8 @@ const Room = (props) => {
                     })}
                 </>
             ) : (
-                <h1>No video</h1>
+                // <h1>No video</h1>
+                null
             )}
         </Container>
     );

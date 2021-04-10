@@ -16,8 +16,7 @@ const WebSocketJSONStream = require("@teamwork/websocket-json-stream");
 const Project = require("./models/project");
 const Document = require("./models/document");
 const Sandbox = require("./models/sandbox");
-const shareDb = require("./models/sharedb")
-const setShareDbAccess = require("./models/sharedb-access");
+const {shareDb,setShareDbAccess} = require("./models/sharedb")
 const sharedsession = require("express-socket.io-session");
 require('dotenv').config();
 

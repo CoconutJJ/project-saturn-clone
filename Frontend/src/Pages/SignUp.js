@@ -50,10 +50,15 @@ function SignUp() {
     let signUp = async () => {
         let { fname, lname, username, password, email } = formFields;
 
-        if (await User.signUp(fname, lname, username, password, email)) {
-            history.push("/dashboard");
-        } else {
+        try {
+            if (await User.signUp(fname, lname, username, password, email))
+                history.push("/dashboard");
+        } catch (e) {
+            document.dispatchEvent(
+                new CustomEvent("custom-onError", { detail: { error: e } })
+            );
         }
+
     };
 
     return (
