@@ -28,7 +28,19 @@ class Project {
             error: undefined,
         };
 
-        let [countOwnerResults, fields] = await Project.db.query(
+
+        let [countUserResults] = await Project.db.query(
+            "SELECT COUNT(*) as count FROM users WHERE uname = ?",
+            [uname]);
+        if (parseInt(countUserResults[0].count) < 1) {
+            output.error = Error(
+                `User ${uname} does not exist`
+            );
+            output.error.status = 400;
+            return output;
+        }
+
+        let [countOwnerResults] = await Project.db.query(
             "SELECT COUNT(*) as count FROM projects WHERE id = ? AND owner = ?",
             [projectID, uname]);
         if (parseInt(countOwnerResults[0].count) > 0) {
@@ -41,7 +53,6 @@ class Project {
 
         let [
             countGuestResults,
-            _,
         ] = await Project.db.query(
             "SELECT COUNT(*) as count FROM projectsToSharedUsers WHERE projectID = ? AND uname = ?",
             [projectID, uname]
@@ -102,10 +113,10 @@ class Project {
      */
     static async getProject(projectID) {
 
-            let [results, fields] = await Project.db.query(
-                "SELECT * FROM projects WHERE id = ?",
-                [projectID]);
-            return results[0];
+        let [results, fields] = await Project.db.query(
+            "SELECT * FROM projects WHERE id = ?",
+            [projectID]);
+        return results[0];
     }
 
     /**

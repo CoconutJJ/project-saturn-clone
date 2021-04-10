@@ -19,7 +19,7 @@ function Dashboard() {
                     <ProjectList/>
                 </Grid>
                 <Grid item xs={12}>
-                    <QuickActions/>
+                    {/* <QuickActions/> */}
                 </Grid>
             </Grid>
         </div>

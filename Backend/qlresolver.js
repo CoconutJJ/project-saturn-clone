@@ -82,7 +82,7 @@ const root = {
                     return true;
                 }
                 else {
-                    context.res.status(400);
+                    context.res.status(result.error.status);
                     return Error(result.error.message);
                 }
             } else {

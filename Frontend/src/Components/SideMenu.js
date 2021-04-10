@@ -21,6 +21,7 @@ import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import ShareIcon from "@material-ui/icons/Share";
 import VideocamIcon from "@material-ui/icons/Videocam";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
 
 const drawerWidth = 240;
 
@@ -56,6 +57,7 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName, se
     const [newGuestUsername, setNewGuestUsername] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [drawerState, setDrawerState] = useState("");
+    const [projectDetails,setProjectDetails] = useState({});
 
     const updateDrawer = async (newState) => {
         setDrawerOpen(!(newState == drawerState && drawerOpen));
@@ -77,6 +79,11 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName, se
     };
 
     useEffect(() => {
+        const init = async()=>{
+            let data = await ProjectAPI.getProject(parseInt(projectID))
+            setProjectDetails(data);
+        }
+        init();
         let _ = setInterval(async()=>await reloadProject(),2500);
         return()=>{clearInterval(_)}
     }, []);
@@ -180,8 +187,12 @@ export default function SideMenu({ projectID, setDocumentID, setDocumentName, se
                 <Divider />
                 <List>
                     <ListItem>Participants</ListItem>
+                    <ListItem>
+                        <AccountBoxIcon/><ListItemText primary={projectDetails.owner}/>
+                    </ListItem>
                     {guests.map(({ uname }) => (
                         <ListItem key={uname}>
+                            <AccountBoxIcon/>
                             <ListItemText primary={uname} />
                             <IconButton
                                 onClick={() => {
