@@ -5,7 +5,7 @@ import ShareDBMonaco from "sharedb-monaco";
 const envToLang = { "python": "python", "c": "cpp" }
 function CodePad({ projectID, documentID, env }) {
     function handleEditorDidMount(editor) {
-        let binding = new ShareDBMonaco({ id: documentID.toString(), namespace: projectID.toString(), wsurl: `ws://${window.location.host}/codepad` });
+        let binding = new ShareDBMonaco({ id: documentID.toString(), namespace: projectID.toString(), wsurl: `wss://${window.location.host}/codepad` });
         binding.on("ready", () => {
             binding.add(editor, "content");
         });

@@ -27,7 +27,8 @@ const Terminal = ({ projectID, documentID }) => {
     }, [socket]);
 
     useEffect(() => {
-        setSocket(io.connect("ws://" + window.location.host, { path: "/pty" }));
+        
+        setSocket(io.connect("wss://" + window.location.host, { path: "/pty" }));
 
         setBuffer(new XTermBuffer(xtermRef.current.terminal));
         let fit = new FitAddon();
