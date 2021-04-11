@@ -27,7 +27,7 @@ class Document {
     */
     static async get(projectID) {
         let data = await API.q(
-            `query($projectID: Int!){ getDocuments(projectID: $projectID){name,id}}`,
+            `query($projectID: Int!){ getProject(projectID: $projectID){documents{name,id}}}`,
             {
                 projectID
             }
@@ -35,7 +35,7 @@ class Document {
         if(data.errors){
             throw Error(data.errors[0].message);
         }
-        return data.data.getDocuments;
+        return data.data.getProject.documents;
     }
 
 }

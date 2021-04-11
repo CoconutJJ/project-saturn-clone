@@ -120,24 +120,13 @@
                 - env (string) "python or c"
                 - owner (string) "project owner username"
                 - id (int) 1
-
-
-### project guests
-- description: get an array of users that are guests of a specific project
-- request: `POST /ql/`
-    - content-type : `application/json`
-    - body: (object)
-        - query: (string)
-            `query($projectID: Int!){ getProjectGuests(projectID: $projectID){uname}}`
-        - variables: (object)
-            - projectID: (int) 1
-- response: 200
-    - content-type : `application/json`
-    - body: (object)
-        - data (object)
-            - createProject (array)
-                -(object)
-                    - uname (string) "username"
+                - guests (array)
+                    - (object)
+                        - uname (string) "username"
+                - documents (array)
+                    - (object)
+                        - name (string) "document name"
+                        - id (int) 
 - response: 403
     - content-type : `application/json`
     - body: (object)
@@ -172,29 +161,6 @@
             - (object)
                 - message (string) "Error message"
 
-### documents
-- description: get an array of documents belonging to a specific project
-- request: `POST /ql/`
-    - content-type : `application/json`
-    - body: (object)
-        - query: (string)
-            `query($projectID: Int!){ getDocuments(projectID: $projectID){name,id}}`
-        - variables: (object)
-            - projectID: (int) 1
-- response: 200
-    - content-type : `application/json`
-    - body: (object)
-        - data (object)
-            - getProject (object)
-                - name (string) "document name"
-                - id (int) 1
-- response: 403
-    - content-type : `application/json`
-    - body: (object)
-        - errors (array)
-            - (object)
-                - message (string) "Error message"
-
 
 ## Update
 
@@ -213,30 +179,7 @@
     - content-type : `application/json`
     - body: (object)
         - data (object)
-            - getUserProjects (boolean) true
-- response: 403,400
-    - content-type : `application/json`
-    - body: (object)
-        - errors (array)
-            - (object)
-                - message (string) "Error message"
-
-
-### share project
-- description: share a specific project with a user
-- request: `POST /ql/`
-    - content-type : `application/json`
-    - body: (object)
-        - query: (string)
-            `mutation($uname: String!, $projectID: Int!){ shareProject(uname: $uname, projectID: $projectID)}`
-        - variables: (object)
-            - uname: (string) "guest username"
-            - projectID: (int) 1
-- response: 200
-    - content-type : `application/json`
-    - body: (object)
-        - data (object)
-            - getUserProjects (boolean) true
+            - shareProject (boolean) true
 - response: 403,400
     - content-type : `application/json`
     - body: (object)
@@ -259,7 +202,7 @@
     - content-type : `application/json`
     - body: (object)
         - data (object)
-            - getUserProjects (boolean) true
+            - unShareProject (boolean) true
 - response: 403,400
     - content-type : `application/json`
     - body: (object)

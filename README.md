@@ -45,3 +45,5 @@ Saturn Notebook will be a web-based application that will allow the user to crea
 - Markdown and LaTeX Rendering
   - Allow for editing and live rendering of LaTeX equations and Markdown
 
+## API Documentation
+[Documentation](https://github.com/UTSCC09/project-saturn/blob/login-signup/doc/README.md)

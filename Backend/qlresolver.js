@@ -44,18 +44,6 @@ const root = {
 
         return true;
     },
-    loggedIn: ({ }, context) => {
-        try {
-            return (
-                context.req.session.username !== undefined &&
-                context.req.session.username !== null
-            );
-        } catch (e) {
-            console.error(e);
-            context.res.status(500);
-            return Error("Internal server error");
-        }
-    },
     signUpUser: async (
         { firstname, lastname, username, password, email },
         context
@@ -168,7 +156,7 @@ const root = {
                 //regex from https://stackoverflow.com/questions/11100821/javascript-regex-for-validating-filenames
                 { condition: !validator.isEmpty(name) && /^[^\\/:\*\?"<>\|]+$/.test(name), error: new Error(`Document names must not contain the symbols \ / : * ? \" < > |`) },
             ])
-            if(inputError){
+            if (inputError) {
                 context.res.status(400);
                 return inputError;
             }
@@ -197,7 +185,7 @@ const root = {
             return Error("Internal server error");
         }
     },
-    getProjectGuests: async ({ projectID }, context) => {
+    getProject: async ({ projectID }, context) => {
         try {
             if (
                 context.req.loggedIn &&
@@ -206,20 +194,11 @@ const root = {
                     projectID
                 ))
             ) {
-                return await Project.getGuests(projectID);
+                return await Project.getProject(projectID);
             } else {
                 context.res.status(403);
-                return Error("Access Denied. Please log in.");
+                return Error("Access Denied. Only project owners and participants can see project details.");
             }
-        } catch (e) {
-            console.error(e);
-            context.res.status(500);
-            return Error("Internal server error");
-        }
-    },
-    getProject: async ({ projectID }, context) => {
-        try {
-            return await Project.getProject(projectID);
         } catch (e) {
             console.error(e);
             context.res.status(500);
@@ -237,26 +216,6 @@ const root = {
             } else {
                 context.res.status(403);
                 return Error("Access Denied. Please log in.");
-            }
-        } catch (e) {
-            console.error(e);
-            context.res.status(500);
-            return Error("Internal server error");
-        }
-    },
-    getDocuments: async ({ projectID }, context) => {
-        try {
-            if (
-                context.req.loggedIn &&
-                (await Project.isOwnerOrGuest(
-                    context.req.session.username,
-                    projectID
-                ))
-            ) {
-                return await Document.get(projectID);
-            } else {
-                context.res.status(403);
-                return Error("Access Denied. Only project owners and participants can see documents.");
             }
         } catch (e) {
             console.error(e);

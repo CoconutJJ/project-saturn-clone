@@ -3,6 +3,8 @@ type Project  {
     env: String!
     owner: String!
     id : Int!
+    documents: [Document]
+    guests: [User]
 }
 
 type Document  {
@@ -16,11 +18,8 @@ type User {
 type Query {
     loginUser(username: String!, password: String!): Boolean
     logoutUser: Boolean
-    loggedIn: Boolean
     getUserProjects(relationship: String!): [Project]
     getProject(projectID: Int!):Project
-    getDocuments(projectID: Int!): [Document]
-    getProjectGuests(projectID: Int!): [User]
 }
 
 type Mutation {

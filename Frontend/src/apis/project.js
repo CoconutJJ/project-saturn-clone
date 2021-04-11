@@ -90,7 +90,7 @@ class Project {
 */
     static async getGuests(projectID) {
         let data = await API.q(
-            `query($projectID: Int!){ getProjectGuests(projectID: $projectID){uname}}`,
+            `query($projectID: Int!){ getProject(projectID: $projectID){guests{uname}}}`,
             {
                 projectID
             }
@@ -98,7 +98,7 @@ class Project {
         if (data.errors) {
             throw Error(data.errors[0].message);
         }
-        return data.data.getProjectGuests;
+        return data.data.getProject.guests;
     }
 
 

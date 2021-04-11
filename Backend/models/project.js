@@ -1,8 +1,10 @@
 const Database = require("../database");
+const Document = require("./document");
 const Model = require("./model");
 class Project {
 
     static db = new Database();
+    
 
     /**
      *  Create a new project.
@@ -116,7 +118,12 @@ class Project {
         let [results, fields] = await Project.db.query(
             "SELECT * FROM projects WHERE id = ?",
             [projectID]);
-        return results[0];
+        let project = results[0];
+        if(project){
+            project.guests = await Project.getGuests(projectID);
+            project.documents = await Document.get(projectID);
+        }
+        return project;
     }
 
     /**
