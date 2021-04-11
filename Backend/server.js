@@ -146,10 +146,8 @@ const users = {};
 const rooms = {};
 
 io_video.on('connection', socket => {
-    console.log(`New connection: ${socket.id}`);
     let username = socket.handshake.session.username;
     if (users[username]) {
-        console.error(`${username} is already connected`);
         socket.disconnect();
     }
 
@@ -157,7 +155,6 @@ io_video.on('connection', socket => {
     socket.username = username;
 
     socket.on("join room", roomID => {
-        console.log(`${socket.id} has joined room ${roomID}`);
         if (!rooms[roomID]) {
             rooms[roomID] = {};
         }
@@ -174,17 +171,14 @@ io_video.on('connection', socket => {
     });
 
     socket.on("sending signal", payload => {
-        console.log(`${socket.id} starting connection with ${payload.callerID}`);
         io_video.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
     });
 
     socket.on("returning signal", payload => {
-        console.log(`${socket.id} - ${payload.callerID}: COMPLETE`);
         io_video.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
     });
 
     socket.on('disconnect', () => {
-        console.log(`${socket.id} has left room ${socket.roomID}`);
         users[username] = null;
     
         if (rooms[socket.roomID]) {

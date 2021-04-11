@@ -43,7 +43,7 @@ const Room = (props) => {
     useEffect(() => {
         if (!props.videoflag) return;
 
-        // Relaying handshakes from simple-peer
+        // establish handshake between peers
         socketRef.current.on("receiving returned signal", payload => {
             const item = peers.find(p => p.peerID === payload.id);
             item.peer.signal(payload.signal);
@@ -73,7 +73,7 @@ const Room = (props) => {
             .getUserMedia({ video: videoConstraints, audio: true })
             .then(
                 stream => {
-                    // Initialization step
+                    // Display all users
                     socketRef.current.on("all users", users => {
                         
                         setPeers(users.map(peerID => {
@@ -82,7 +82,7 @@ const Room = (props) => {
                         }));
                     });
         
-                    // New user while code is still running
+                    // New user joins
                     socketRef.current.on("user joined", payload => {
                         
                         const peer = addPeer(payload.signal, payload.callerID, stream);
@@ -93,7 +93,7 @@ const Room = (props) => {
                         setPeers(users => [...users, peerObj]);
                     });
 
-                    // Cleaning up people leaving
+                    // User leaves
                     socketRef.current.on("user left", userID => {
                         setPeers(_peers => {
                             const newPeers = _peers.filter(p => {
