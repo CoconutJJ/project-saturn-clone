@@ -28,7 +28,7 @@ export default function Project() {
     const [startVideo, setStartVideo] = useState(false);
     const [env, setEnv] = useState("");
     useEffect(() => {
-        const init = async()=>{
+        const init = async () => {
             let data = await ProjectAPI.getProject(parseInt(projectID));
             setEnv(data.env);
         }
@@ -40,17 +40,16 @@ export default function Project() {
             <CssBaseline />
             <SideMenu setStartVideo={setStartVideo} projectID={projectID} setDocumentID={setDocumentID} setDocumentName={setDocumentName} />
             <main className={classes.content}>
+                <Grid item xs={12} md={12} sm={12}>
+                    <Room
+                        id={projectID}
+                        videoflag={startVideo}
+                    />
+                </Grid>
                 {projectID && documentID ? (
                     <>
                         <Typography variant="h3">{documentName}</Typography>
                         <Divider light />
-                        <Grid item xs={12} md={12} sm={12}>
-
-                            <Room
-                                id={projectID}
-                                videoflag={startVideo}
-                            />
-                        </Grid>
                         <Grid item xs={12} md={12} sm={12}>
                             <CodePad
                                 projectID={projectID}
