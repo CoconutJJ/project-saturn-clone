@@ -70,7 +70,7 @@ const Room = (props) => {
 
     useEffect(() => {
         navigator.mediaDevices
-            .getUserMedia({ video: videoConstraints, audio: false })
+            .getUserMedia({ video: videoConstraints, audio: true })
             .then(
                 stream => {
                     // Initialization step
