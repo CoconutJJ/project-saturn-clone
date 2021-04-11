@@ -6,6 +6,9 @@ Saturn Notebook
 ## Project Demo:
 [Project Saturn Demo](https://www.youtube.com/watch?v=p_-xm22scF8)
 
+## API Documentation
+[Documentation](https://github.com/UTSCC09/project-saturn/blob/login-signup/doc/README.md)
+
 ## Team Members
 - David Yue
 - Shruti Mistry
@@ -47,6 +50,3 @@ Saturn Notebook will be a web-based application that will allow the user to crea
   - Allow users to also run compiled languages such as C through a remote compiler stored on the server.
 - Markdown and LaTeX Rendering
   - Allow for editing and live rendering of LaTeX equations and Markdown
-
-## API Documentation
-[Documentation](https://github.com/UTSCC09/project-saturn/blob/login-signup/doc/README.md)
