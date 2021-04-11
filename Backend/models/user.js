@@ -36,7 +36,7 @@ class User {
 
         if (parseInt(results[0].count) > 0) {
             output.error = new Error("Username is already in use.")
-            output.error.status=400;
+            output.error.status=409;
             return output;
         }
 
