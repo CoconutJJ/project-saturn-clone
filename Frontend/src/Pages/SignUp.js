@@ -89,7 +89,6 @@ function SignUp() {
                         <h1>Sign Up</h1>
                         <Grid item>
                             <TextField
-                                id="input-with-icon-grid"
                                 label="First Name"
                                 value={formFields.fname}
                                 onChange={createFieldUpdate("fname")}
@@ -98,7 +97,6 @@ function SignUp() {
                             />
 
                             <TextField
-                                id="input-with-icon-grid"
                                 label="Last Name"
                                 value={formFields.lname}
                                 onChange={createFieldUpdate("lname")}
@@ -108,7 +106,6 @@ function SignUp() {
                         </Grid>
                         <Grid item>
                             <TextField
-                                id="input-with-icon-grid"
                                 label="Username"
                                 value={formFields.username}
                                 onChange={createFieldUpdate("username")}
@@ -117,7 +114,6 @@ function SignUp() {
                             />
 
                             <TextField
-                                id="input-with-icon-grid"
                                 label="Password"
                                 value={formFields.password}
                                 onChange={createFieldUpdate("password")}
@@ -128,7 +124,6 @@ function SignUp() {
                         </Grid>
                         <Grid item>
                             <TextField
-                                id="input-with-icon-grid"
                                 label="Email"
                                 value={formFields.email}
                                 onChange={createFieldUpdate("email")}

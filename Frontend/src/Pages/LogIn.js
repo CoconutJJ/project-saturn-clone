@@ -68,7 +68,6 @@ function LogIn() {
                                 <Grid item>
                                     <TextField
                                         error={isError}
-                                        id="input-with-icon-grid"
                                         label="Username"
                                         value={username}
                                         onChange={(e) =>
@@ -83,7 +82,6 @@ function LogIn() {
                                 <Grid item>
                                     <TextField
                                         error={isError}
-                                        id="input-with-icon-grid"
                                         label="Password"
                                         value={password}
                                         onChange={(e) =>
