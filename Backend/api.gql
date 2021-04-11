@@ -1,7 +1,31 @@
+type Project  {
+    name: String!
+    env: String!
+    owner: String!
+    id : Int!
+    documents: [Document]
+    guests: [User]
+}
+
+type Document  {
+    name: String!
+    id : Int!
+}
+type User {
+    uname: String!
+}
+
 type Query {
-    loginUser(username: String, password: String): Boolean
+    loginUser(username: String!, password: String!): Boolean
+    logoutUser: Boolean
+    getUserProjects(relationship: String!): [Project]
+    getProject(projectID: Int!):Project
 }
 
 type Mutation {
-    signUpUser(firstname: String, lastname: String, username: String, password: String, email: String): Boolean
+    signUpUser(firstname: String!, lastname: String!, username: String!, password: String!, email: String!): Boolean
+    createProject(name: String!, env: String!): Boolean
+    shareProject(uname: String!, projectID: Int!): Boolean
+    createDocument(name: String!, projectID: Int!): Boolean
+    unShareProject(uname: String!, projectID: Int!): Boolean
 }

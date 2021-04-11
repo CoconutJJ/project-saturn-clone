@@ -13,11 +13,9 @@ class User {
      */
     static async authenticate(username, password) {
         let [results, fields] = await User.db.query("SELECT * FROM users WHERE uname = ?", [username]);
-
         if (results.length == 0) {
             return false;
         }
-
         return User._verifyPassword(password, results[0]["pword"], results[0]["salt"])  
     }
 
@@ -31,11 +29,22 @@ class User {
      */
     static async create(firstname, lastname, username, password, email) {
 
+        let output = {isCreated:false,error:undefined}
         let [hashedPassword, salt] = User._hashPassword(password);
 
-        let [results, fields] = await User.db.query(
+        let [results, _] = await User.db.query("SELECT COUNT(*) as count FROM users WHERE uname = ?", [username]);
+
+        if (parseInt(results[0].count) > 0) {
+            output.error = new Error("Username is already in use.")
+            output.error.status=409;
+            return output;
+        }
+
+        [results, _] = await User.db.query(
             "INSERT INTO users (fname, lname, uname, pword, salt, email) VALUES (?,?,?,?,?,?)",
             [firstname, lastname, username, hashedPassword, salt, email]);
+        output.isCreated = (results.affectedRows != 0);
+        return output;
     }
 
     /**

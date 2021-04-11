@@ -1,17 +1,65 @@
-import { Button, CssBaseline, Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
+import {
+    Button,
+    CssBaseline,
+    Grid,
+    TextField,
+    Container,
+} from "@material-ui/core";
 import { AccountCircle, LockRounded } from "@material-ui/icons";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import brandLogo from "../Media/saturn.png";
+import User from "../apis/user";
+
 function SignUp() {
-    let [username, setUsername] = useState("");
-    let [password, setPassword] = useState("");
+    let [formFields, setFormFields] = useState({
+        username: "",
+        password: "",
+        email: "",
+        fname: "",
+        lname: "",
+    });
 
+    let [isFormFilled, setIsFormFilled] = useState(false);
 
-    let validEntries = () => {
-        return username.length > 0 && password.length > 0;
+    let history = useHistory();
+
+    let createFieldUpdate = (field) => (ev) => {
+        setFormFields({
+            ...formFields,
+            [field]: ev.target.value,
+        });
     };
 
+    useEffect(() => {
+        let { fname, lname, username, password, email } = formFields;
+
+        let validations = [
+            username.length > 0,
+            password.length > 0,
+            fname.length > 0,
+            lname.length > 0,
+            email.length > 0,
+        ];
+
+        setIsFormFilled(
+            validations.reduce((acc, v) => acc + v) == validations.length
+        );
+    }, [formFields]);
+
+    let signUp = async () => {
+        let { fname, lname, username, password, email } = formFields;
+
+        try {
+            if (await User.signUp(fname, lname, username, password, email))
+                history.push("/dashboard");
+        } catch (e) {
+            document.dispatchEvent(
+                new CustomEvent("custom-onError", { detail: { error: e } })
+            );
+        }
+
+    };
 
     return (
         <Fragment>
@@ -33,93 +81,66 @@ function SignUp() {
                         container
                         item
                         sm={6}
-                        style={{ padding: 10 }}
                         alignItems="center"
                         direction="column"
                         justify="center"
+                        spacing={2}
                     >
-                        <div
-                            style={{ display: "flex", flexDirection: "column" }}
-                        >
-                            <div style={{height: 30}}/>
-                            <Grid container justify="center">
-                                <h1>Sign Up</h1>
-                            </Grid>
+                        <h1>Sign Up</h1>
+                        <Grid item>
+                            <TextField
+                                label="First Name"
+                                value={formFields.fname}
+                                onChange={createFieldUpdate("fname")}
+                                variant="outlined"
+                                style={{ margin: "5px" }}
+                            />
 
-                            <Grid container spacing={1} alignItems="flex-end">
-                                <Grid item>
-                                    <AccountCircle />
-                                </Grid>
-                                <Grid item>
-                                    <TextField
-                                        id="input-with-icon-grid"
-                                        label="First Name"
-                                    />
-                                </Grid>
-                                <Grid item>
-                                    <AccountCircle />
-                                </Grid>
-                                <Grid item>
-                                    <TextField
-                                        id="input-with-icon-grid"
-                                        label="Last Name"
-                                    />
-                                </Grid>
-                            </Grid>
-                            <div style={{ height: 20 }} />
+                            <TextField
+                                label="Last Name"
+                                value={formFields.lname}
+                                onChange={createFieldUpdate("lname")}
+                                variant="outlined"
+                                style={{ margin: "5px" }}
+                            />
+                        </Grid>
+                        <Grid item>
+                            <TextField
+                                label="Username"
+                                value={formFields.username}
+                                onChange={createFieldUpdate("username")}
+                                variant="outlined"
+                                style={{ margin: "5px" }}
+                            />
 
-                            <Grid
-                                container
-                                spacing={1}
-                                alignItems="flex-end"
-                            ></Grid>
-                            <div style={{ height: 20 }} />
-
-                            <Grid container spacing={1} alignItems="flex-end">
-                                <Grid item>
-                                    <AccountCircle />
-                                </Grid>
-                                <Grid item>
-                                    <TextField
-                                        id="input-with-icon-grid"
-                                        label="Username"
-                                        value={username}
-                                        onChange={(e) =>
-                                            setUsername(e.target.value)
-                                        }
-                                    />
-                                </Grid>
-                                <Grid item>
-                                    <LockRounded />
-                                </Grid>
-                                <Grid item>
-                                    <TextField
-                                        id="input-with-icon-grid"
-                                        label="Password"
-                                        value={password}
-                                        onChange={(e) =>
-                                            setPassword(e.target.value)
-                                        }
-                                        type="Password"
-                                    />
-                                </Grid>
-                            </Grid>
-                            <div style={{ height: 20 }} />
-                            <Grid container spacing={1} alignItems="flex-end">
-                                <Grid item>
-                                    <AccountCircle />
-                                </Grid>
-                                <Grid item>
-                                    <TextField
-                                        id="input-with-icon-grid"
-                                        label="Email"
-                                    />
-                                </Grid>
-                            </Grid>
-
-                            <div style={{ height: 20 }} />
-                            <Button variant="contained" color="primary">Sign up</Button>
-                        </div>
+                            <TextField
+                                label="Password"
+                                value={formFields.password}
+                                onChange={createFieldUpdate("password")}
+                                variant="outlined"
+                                style={{ margin: "5px" }}
+                                type="Password"
+                            />
+                        </Grid>
+                        <Grid item>
+                            <TextField
+                                label="Email"
+                                value={formFields.email}
+                                onChange={createFieldUpdate("email")}
+                                variant="outlined"
+                                style={{ margin: "5px" }}
+                            />
+                        </Grid>
+                        <Grid item>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                disabled={!isFormFilled}
+                                onClick={signUp}
+                            >
+                                Sign up
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Grid>
             </div>

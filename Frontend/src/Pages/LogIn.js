@@ -5,24 +5,26 @@ import React, { Fragment, useState } from "react";
 import { useHistory } from "react-router-dom";
 import brandLogo from "../Media/saturn.png";
 import User from "../apis/user"
+
 function LogIn() {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
-
-    const history = useHistory();
+    
+    let [isError, setError] = useState(false);
 
     let validEntries = () => {
         return username.length > 0 && password.length > 0;
     };
 
     let login = async () => {
+        try {
 
-        if (await User.login(username, password)) {
-            history.push("/dashboard");
-        } else {
-            alert("Login Failed")
+            if (await User.login(username, password)) {
+                window.location.href = "/dashboard";
+            }
+        } catch (e) {
+            document.dispatchEvent(new CustomEvent("custom-onError", { detail: { error: e } }))
         }
-
     }
 
     return (
@@ -59,56 +61,33 @@ function LogIn() {
                             }}
                         >
                             <Grid container justify="center">
-                                {/* <img src={brandLogo} width={200} alt="brand logo" /> */}
-
                                 <h1>Log In</h1>
                             </Grid>
-                            {/* <TextField label="Username" margin="normal" id="standard-basic"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <AccountCircle />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                        <TextField label="Password" margin="normal" id="standard-basic"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LockRounded />
-                                    </InputAdornment>
-                                ),
-                            }} /> */}
                             <div style={{ height: 20 }} />
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
-                                    <AccountCircle />
-                                </Grid>
-                                <Grid item>
                                     <TextField
-                                        id="input-with-icon-grid"
+                                        error={isError}
                                         label="Username"
                                         value={username}
                                         onChange={(e) =>
                                             setUsername(e.target.value)
                                         }
+                                        variant="outlined"
                                     />
                                 </Grid>
                             </Grid>
                             <div style={{ height: 20 }} />
                             <Grid container spacing={1} alignItems="flex-end">
                                 <Grid item>
-                                    <LockRounded />
-                                </Grid>
-                                <Grid item>
                                     <TextField
-                                        id="input-with-icon-grid"
+                                        error={isError}
                                         label="Password"
                                         value={password}
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
+                                        variant="outlined"
                                         type="Password"
                                     />
                                 </Grid>
