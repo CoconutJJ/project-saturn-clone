@@ -179,3 +179,11 @@ export default Room;
  *    Availability: https://github.com/coding-with-chaim/group-video-final
  *
  ***************************************************************************************/
+//Leaving the group chat is from the following Youtube tutorial 
+/***************************************************************************************
+ *    Title: Handle User Disconnect in WebRTC Group Video Chat
+ *    Author: coding-with-chaim
+ *    Date: 2020-10-08
+ *    Availability: https://www.youtube.com/watch?v=0fWN_q4zAqs
+ *
+ ***************************************************************************************/
