@@ -35,7 +35,7 @@ const videoConstraints = {
 
 const Room = (props) => {
     const [peers, setPeers] = useState([]);
-    const socketRef = useRef(io("https://" + window.location.host, { path: '/video', autoConnect: false }));
+    const socketRef = useRef(io("https://https://c09saturn.codes/", { path: '/video', autoConnect: false }));
     const [stream, setStream] = useState();
     const roomID = props.id;
     const userVideo = useRef();
